@@ -7,6 +7,9 @@ const env = require('../config/env');
 const { AVATAR_SIZE } = require('../config/constants');
 const AppError = require('../utils/AppError');
 
+// Disable libvips file cache to avoid Windows EBUSY locks when cleaning up temp uploads.
+sharp.cache(false);
+
 const ALLOWED_IMAGE_TYPES = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -46,7 +49,8 @@ async function processAndSaveAvatar(tempFilePath) {
   }
 
   try {
-    const detected = await FileType.fromFile(tempFilePath);
+    const inputBuffer = await fs.readFile(tempFilePath);
+    const detected = await FileType.fromBuffer(inputBuffer);
     const ext = detected ? ALLOWED_IMAGE_TYPES[detected.mime] : null;
     if (!ext) {
       throw new AppError('Only JPEG, PNG, and WebP images are allowed.', 400);
@@ -56,12 +60,12 @@ async function processAndSaveAvatar(tempFilePath) {
     const filename = `${randomUUID()}.${ext}`;
     const destPath = path.join(uploadDir, filename);
 
-    await sharp(tempFilePath)
+    await sharp(inputBuffer)
       .rotate()
       .resize(AVATAR_SIZE, AVATAR_SIZE, { fit: 'cover', position: 'centre' })
       .toFile(destPath);
 
-    const normalizedDir = env.UPLOAD_DIR.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+    const normalizedDir = env.UPLOAD_DIR.replace(/\\/g, '/').replace(/^(?:\.\/|\/)+|\/+$/g, '');
     return `${normalizedDir}/${filename}`;
   } finally {
     await safeUnlink(tempFilePath);

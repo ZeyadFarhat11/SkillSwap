@@ -38,11 +38,16 @@ async function findProfileById(id) {
 /**
  * Update user profile fields and replace project links atomically in one transaction.
  */
-async function updateProfileAndLinks(userId, { name, bio, projectLinks }) {
+async function updateProfileAndLinks(userId, { name, bio, projectLinks, avatarPath }) {
   return prisma.$transaction(async (tx) => {
+    const data = { name, bio };
+    if (avatarPath !== undefined) {
+      data.avatarPath = avatarPath;
+    }
+
     const updatedUser = await tx.user.update({
       where: { id: userId },
-      data: { name, bio },
+      data,
     });
 
     await tx.userProjectLink.deleteMany({ where: { userId } });

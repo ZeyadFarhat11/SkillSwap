@@ -333,6 +333,63 @@ describe('Phase 3 Profile, Avatar Upload, Skills, and Availability', () => {
     expect(profileRes.text).toContain('https://alice.dev');
   });
 
+  test('POST /profile/edit saves avatar together with profile changes and discards temp files on validation error', async () => {
+    const alice = await seedUser({ name: 'Alice Combo', email: 'combo@example.com' });
+    const agent = await loginAgent(alice.email);
+
+    const editPage = await agent.get('/profile/edit');
+    expect(editPage.statusCode).toBe(200);
+    expect(editPage.text).not.toContain('action="/profile/avatar"');
+    expect(editPage.text).toContain('enctype="multipart/form-data"');
+    const csrf = extractCsrfToken(editPage.text);
+
+    const validWebp = await sharp({
+      create: { width: 500, height: 500, channels: 3, background: { r: 30, g: 120, b: 210 } },
+    })
+      .webp()
+      .toBuffer();
+
+    // Missing CSRF on multipart POST /profile/edit -> 403 and no avatar saved
+    const noCsrfRes = await agent
+      .post('/profile/edit')
+      .field('name', 'Alice Should Fail')
+      .attach('avatar', validWebp, { filename: 'combo.webp', contentType: 'image/webp' });
+    expect(noCsrfRes.statusCode).toBe(403);
+    expect(mockState.users.find((u) => u.id === alice.id).avatarPath).toBeNull();
+
+    // Invalid project link -> 400 and avatar is NOT saved yet
+    const invalidFieldRes = await agent
+      .post('/profile/edit')
+      .field('_csrf', csrf)
+      .field('name', 'Alice Combo')
+      .field('projectLinks', 'invalid-url')
+      .attach('avatar', validWebp, { filename: 'combo.webp', contentType: 'image/webp' });
+    expect(invalidFieldRes.statusCode).toBe(400);
+    expect(mockState.users.find((u) => u.id === alice.id).avatarPath).toBeNull();
+
+    // Valid multipart submission -> saves profile fields and avatar together
+    const okRes = await agent
+      .post('/profile/edit')
+      .field('_csrf', csrf)
+      .field('name', 'Alice Saved Combo')
+      .field('bio', 'Saved together on Save Changes')
+      .field('projectLinks', 'https://example.com/alice')
+      .attach('avatar', validWebp, { filename: 'combo.webp', contentType: 'image/webp' });
+    expect(okRes.statusCode).toBe(302);
+    expect(okRes.headers.location).toBe('/profile');
+
+    const savedAlice = mockState.users.find((u) => u.id === alice.id);
+    expect(savedAlice.name).toBe('Alice Saved Combo');
+    expect(savedAlice.bio).toBe('Saved together on Save Changes');
+    expect(savedAlice.avatarPath).toMatch(/^uploads\/[0-9a-f-]+\.webp$/);
+
+    const savedDiskPath = path.resolve(process.cwd(), savedAlice.avatarPath);
+    mockState.createdUploadFiles.push(savedDiskPath);
+
+    const uploadEntries = await fs.readdir(path.resolve(process.cwd(), 'uploads'));
+    expect(uploadEntries.filter((name) => name.startsWith('tmp-'))).toEqual([]);
+  });
+
   test('POST /profile/avatar validates magic bytes with file-type, resizes to 400x400, and enforces CSRF', async () => {
     const alice = await seedUser({ name: 'Alice Avatar', email: 'avatar@example.com' });
     const agent = await loginAgent(alice.email);
@@ -380,6 +437,65 @@ describe('Phase 3 Profile, Avatar Upload, Skills, and Availability', () => {
     // Verify served via /uploads static mount
     const staticRes = await agent.get(`/${updatedAlice.avatarPath}`);
     expect(staticRes.statusCode).toBe(200);
+
+    // Upload real 500x700 WebP -> saved as uploads/<uuid>.webp, resized to 400x400, deletes old PNG and temp upload
+    const validWebp = await sharp({
+      create: { width: 500, height: 700, channels: 3, background: { r: 20, g: 160, b: 90 } },
+    })
+      .webp()
+      .toBuffer();
+
+    const webpRes = await agent
+      .post('/profile/avatar')
+      .field('_csrf', csrf)
+      .attach('avatar', validWebp, { filename: 'photo.webp', contentType: 'image/webp' });
+    expect(webpRes.statusCode).toBe(302);
+    expect(webpRes.headers.location).toBe('/profile/edit');
+
+    const webpAlice = mockState.users.find((u) => u.id === alice.id);
+    expect(webpAlice.avatarPath).toMatch(/^uploads\/[0-9a-f-]+\.webp$/);
+
+    const webpDiskPath = path.resolve(process.cwd(), webpAlice.avatarPath);
+    mockState.createdUploadFiles.push(webpDiskPath);
+
+    const webpMeta = await sharp(webpDiskPath).metadata();
+    expect(webpMeta.width).toBe(400);
+    expect(webpMeta.height).toBe(400);
+    await expect(fs.stat(savedDiskPath)).rejects.toThrow();
+
+    const webpStaticRes = await agent.get(`/${webpAlice.avatarPath}`);
+    expect(webpStaticRes.statusCode).toBe(200);
+
+    // Upload real 800x500 JPEG -> saved as uploads/<uuid>.jpg, resized to 400x400, deletes old WebP
+    const validJpeg = await sharp({
+      create: { width: 800, height: 500, channels: 3, background: { r: 220, g: 90, b: 40 } },
+    })
+      .jpeg()
+      .toBuffer();
+
+    const jpegRes = await agent
+      .post('/profile/avatar')
+      .field('_csrf', csrf)
+      .attach('avatar', validJpeg, { filename: 'photo.jpg', contentType: 'image/jpeg' });
+    expect(jpegRes.statusCode).toBe(302);
+    expect(jpegRes.headers.location).toBe('/profile/edit');
+
+    const jpegAlice = mockState.users.find((u) => u.id === alice.id);
+    expect(jpegAlice.avatarPath).toMatch(/^uploads\/[0-9a-f-]+\.jpg$/);
+
+    const jpegDiskPath = path.resolve(process.cwd(), jpegAlice.avatarPath);
+    mockState.createdUploadFiles.push(jpegDiskPath);
+
+    const jpegMeta = await sharp(jpegDiskPath).metadata();
+    expect(jpegMeta.width).toBe(400);
+    expect(jpegMeta.height).toBe(400);
+    await expect(fs.stat(webpDiskPath)).rejects.toThrow();
+
+    const jpegStaticRes = await agent.get(`/${jpegAlice.avatarPath}`);
+    expect(jpegStaticRes.statusCode).toBe(200);
+
+    const uploadEntries = await fs.readdir(path.resolve(process.cwd(), 'uploads'));
+    expect(uploadEntries.filter((name) => name.startsWith('tmp-'))).toEqual([]);
   });
 
   test('skills endpoints and service enforce approved-only, no same skill as both types, and ownership', async () => {

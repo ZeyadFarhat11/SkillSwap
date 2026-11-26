@@ -61,7 +61,7 @@ function validate(schema, options = {}) {
     if (options.view) {
       return res.status(400).render(options.view, {
         title: options.title,
-        hideNavbar: Boolean(options.hideNavbar),
+        hideSidebar: Boolean(options.hideSidebar),
         hideFooter: Boolean(options.hideFooter),
         bodyClass: options.bodyClass,
         errors: fieldErrors,

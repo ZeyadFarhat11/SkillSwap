@@ -1,0 +1,35 @@
+extends ../layouts/base
+include ../partials/matchCard
+
+block content
+  main(class='flex-1 min-h-screen px-10 py-7 max-w-7xl')
+    header.flex.items-center.justify-between.mb-5
+      div
+        p(class='text-xs font-medium text-slate-500') Welcome back,
+        h1(class='text-2xl font-bold tracking-tight text-slate-900 mt-0.5')= currentUser ? currentUser.name : 'SkillSwapper'
+      .relative
+        a(href='/profile')
+          if currentUser && currentUser.avatarPath
+            img(alt=currentUser.name class='w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-white' src=`/${currentUser.avatarPath}`)
+          else
+            div(class='w-11 h-11 rounded-full bg-[#e9f0fc] text-[#0058b8] flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white')
+              = currentUser ? currentUser.name.charAt(0).toUpperCase() : 'U'
+
+    .mb-6
+      .relative.w-full
+        .absolute.inset-y-0.left-0.pl-4.flex.items-center.pointer-events-none
+          svg(class='h-4 w-4 text-slate-400 stroke-[2.2]' fill='none' stroke='currentColor' viewBox='0 0 24 24')
+            path(d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z' stroke-linecap='round' stroke-linejoin='round')
+        input(
+          class='block w-full pl-11 pr-4 py-2.5 text-sm bg-white border border-slate-200/80 rounded-xl placeholder-slate-400 text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all'
+          placeholder='Search skills or peers...'
+          type='text'
+        )
+
+    div(class='flex items-center gap-1.5 mb-4')
+      h2(class='text-sm font-bold text-slate-900 tracking-tight') Highly Recommended Match
+      span.text-xs.text-slate-800 ✦
+
+    .space-y-4(data-purpose='match-cards-list')
+      each match in matches
+        +matchCard(match)

@@ -4,6 +4,12 @@ const AppError = require('../utils/AppError');
 const { SKILL_TYPES, USER_STATUSES } = require('../config/constants');
 const { DAY_NAMES, formatPrismaTime } = require('../utils/time');
 
+function normalizeAvatarPath(avatarPath) {
+  if (!avatarPath) return null;
+  const cleaned = String(avatarPath).replace(/\\/g, '/').replace(/^\/+/, '');
+  return cleaned || null;
+}
+
 /**
  * Build a safe view-ready user profile object with formatted skills and availability.
  */
@@ -46,7 +52,7 @@ async function getProfile(userId, { includePrivate = false } = {}) {
     ...(includePrivate ? { email: user.email, pointsBalance: user.pointsBalance } : {}),
     role: user.role,
     bio: user.bio || '',
-    avatarPath: user.avatarPath || null,
+    avatarPath: normalizeAvatarPath(user.avatarPath),
     status: user.status,
     createdAt: user.createdAt,
     projectLinks: (user.projectLinks || []).map((link) => ({
@@ -60,19 +66,40 @@ async function getProfile(userId, { includePrivate = false } = {}) {
 }
 
 /**
- * Update the authenticated user's profile fields and project links in one transaction.
+ * Update the authenticated user's profile fields, project links, and optional avatar in one transaction.
  */
-async function updateProfile(userId, { name, bio, projectLinks }) {
+async function updateProfile(userId, { name, bio, projectLinks }, uploadedFile = null) {
   const existing = await userModel.findById(userId);
   if (!existing) {
+    if (uploadedFile?.path) {
+      await storageService.safeUnlink(uploadedFile.path);
+    }
     throw new AppError('User not found.', 404);
   }
 
-  const updated = await userModel.updateProfileAndLinks(userId, {
-    name: name.trim(),
-    bio,
-    projectLinks,
-  });
+  let newAvatarPath;
+  if (uploadedFile?.path) {
+    newAvatarPath = await storageService.processAndSaveAvatar(uploadedFile.path);
+  }
+
+  let updated;
+  try {
+    updated = await userModel.updateProfileAndLinks(userId, {
+      name: name.trim(),
+      bio,
+      projectLinks,
+      ...(newAvatarPath ? { avatarPath: newAvatarPath } : {}),
+    });
+  } catch (err) {
+    if (newAvatarPath) {
+      await storageService.deleteStoredFile(newAvatarPath);
+    }
+    throw err;
+  }
+
+  if (newAvatarPath && existing.avatarPath && existing.avatarPath !== newAvatarPath) {
+    await storageService.deleteStoredFile(existing.avatarPath);
+  }
 
   return {
     id: updated.id,
@@ -81,7 +108,7 @@ async function updateProfile(userId, { name, bio, projectLinks }) {
     role: updated.role,
     status: updated.status,
     pointsBalance: updated.pointsBalance,
-    avatarPath: updated.avatarPath || null,
+    avatarPath: normalizeAvatarPath(updated.avatarPath),
   };
 }
 

@@ -1,0 +1,49 @@
+extends ../layouts/base
+
+block content
+  main.flex-1.flex.flex-col.overflow-y-auto.px-10.py-8
+    .flex.items-center.gap-3.mb-6
+      a(aria-label='Go back' class='text-slate-800 hover:text-slate-600 transition-colors p-1 -ml-1' href='/suggestions')
+        svg(class='w-5 h-5 stroke-current fill-none stroke-[2.5]' viewBox='0 0 24 24')
+          path(d='M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18' stroke-linecap='round' stroke-linejoin='round')
+      h1.text-lg.font-bold.text-slate-900 Submit a Report
+
+    form.max-w-3xl.flex-1.flex.flex-col.space-y-6(method='POST' action='/reports')
+      input(type='hidden' name='_csrf' value=csrfToken)
+
+      div
+        h2.text-base.font-bold.text-slate-900.mb-1 Report an Issue or User
+        p.text-xs.text-slate-500 Help us keep SkillSwap safe and working smoothly.
+
+      fieldset.space-y-3(data-purpose='report-reasons')
+        legend.sr-only Report type
+        each opt in reportTypes
+          label(class='flex items-center justify-between px-5 py-3.5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-slate-300 transition-all')
+            span.text-xs.font-semibold.text-slate-800= opt.label
+            input(class='w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500' name='type' type='radio' value=opt.value checked=(opt.value === 'user'))
+
+      div
+        label(class='block text-xs font-bold uppercase text-slate-500 mb-1.5' for='subject') Subject
+        input#subject(
+          class='w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
+          name='subject'
+          type='text'
+          placeholder='Short summary of the issue'
+          required
+        )
+
+      div
+        label(class='block text-xs font-bold uppercase text-slate-500 mb-1.5' for='description') Details
+        textarea#description(
+          class='w-full bg-white border border-slate-300 rounded-xl p-4 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none transition-colors'
+          name='description'
+          placeholder='Describe what happened...'
+          rows='6'
+          required
+        )
+
+      .pt-2
+        button(
+          class='w-full py-3.5 bg-[#FDE7E7] hover:bg-[#FCD8D8] text-[#861919] font-bold text-sm rounded-full transition-colors tracking-wide'
+          type='submit'
+        ) Submit Report

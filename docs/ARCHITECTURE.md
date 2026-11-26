@@ -227,6 +227,7 @@ exact mutual skill matches, so the Suggestions page never breaks.
 
 | Area | Routes |
 |---|---|
+| Welcome | `GET /`, `GET /welcome` |
 | Auth | `GET/POST /register`, `GET/POST /login`, `POST /logout` |
 | Profile | `GET /profile`, `GET/POST /profile/edit`, `POST /profile/avatar`, `GET /users/:id` |
 | Skills | `GET /skills`, `POST /skills/mine`, `POST /skills/mine/:id/delete` |
@@ -234,7 +235,7 @@ exact mutual skill matches, so the Suggestions page never breaks.
 | Suggestions | `GET /suggestions` |
 | Swap requests | `GET /requests`, `POST /requests`, `POST /requests/:id/accept`, `/decline`, `/cancel` |
 | Sessions | `GET /sessions`, `POST /sessions`, `POST /sessions/:id/complete`, `/cancel` |
-| Ratings | `POST /sessions/:id/rating` |
+| Ratings | `GET /sessions/:id/review`, `POST /sessions/:id/rating` |
 | Messages | `GET /messages`, `GET /messages/:userId`, `POST /messages` |
 | Points | `GET /points` |
 | Reports | `GET/POST /reports` |

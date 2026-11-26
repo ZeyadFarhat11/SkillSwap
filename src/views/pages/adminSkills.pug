@@ -1,0 +1,48 @@
+extends ../layouts/base
+
+block content
+  .flex-1.flex.flex-col.min-w-0
+    header(class='h-20 bg-white/70 backdrop-blur-md border-b border-[#EAEFF5] px-8 flex items-center justify-between sticky top-0 z-10' data-purpose='topbar')
+      h1(class='text-xl font-bold tracking-tight text-[#0F172A]') Skill Management
+      span(class='text-xs font-semibold text-[#0055D6]') Administrator
+
+    main(class='flex-1 p-8 space-y-7 max-w-[1500px] w-full mx-auto')
+      section(class='grid grid-cols-1 sm:grid-cols-3 gap-5' data-purpose='metrics-row')
+        div(class='bg-white rounded-xl p-5 border border-[#EDF2F7] shadow-sm flex flex-col items-center justify-center text-center')
+          span(class='text-[11px] font-bold text-[#8A99AD] tracking-wider uppercase') TOTAL SKILLS
+          span(class='text-3xl font-extrabold text-[#0F172A] my-1')= summary.total
+        div(class='bg-white rounded-xl p-5 border border-[#EDF2F7] shadow-sm flex flex-col items-center justify-center text-center')
+          span(class='text-[11px] font-bold text-[#8A99AD] tracking-wider uppercase') PENDING REVIEW
+          span(class='text-3xl font-extrabold text-[#0F172A] my-1')= summary.pending
+        div(class='bg-white rounded-xl p-5 border border-[#EDF2F7] shadow-sm flex flex-col items-center justify-center text-center')
+          span(class='text-[11px] font-bold text-[#8A99AD] tracking-wider uppercase') APPROVED SKILLS
+          span(class='text-3xl font-extrabold text-[#0F172A] my-1')= summary.approved
+
+      section(class='bg-white rounded-2xl border border-[#EDF2F7] shadow-sm overflow-hidden p-6' data-purpose='skills-table-section')
+        .mb-6
+          h2(class='text-lg font-bold text-[#0F172A]') All Skills
+          p(class='text-xs text-[#64748B] mt-0.5') Review pending skills and approve or reject them.
+
+        .overflow-x-auto
+          table.w-full.text-left.border-collapse
+            thead
+              tr(class='bg-[#F8FAFC] border-b border-[#F1F5F9]')
+                th(class='py-3 px-4 text-[11px] font-bold text-[#64748B] tracking-wider uppercase') SKILL NAME
+                th(class='py-3 px-4 text-[11px] font-bold text-[#64748B] tracking-wider uppercase') STATUS
+                th(class='py-3 px-4 text-[11px] font-bold text-[#64748B] tracking-wider uppercase text-right') ACTIONS
+            tbody(class='divide-y divide-[#F1F5F9] text-xs')
+              each skill in skills
+                tr(class='hover:bg-[#FBFDFF] transition-colors')
+                  td(class='py-4 px-4 font-bold text-[#0F172A]')= skill.skillName
+                  td(class='py-4 px-4')
+                    span(class='inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E6F8F0] text-[#059669] capitalize')= skill.status
+                  td(class='py-4 px-4 text-right space-x-3')
+                    if skill.status === 'pending'
+                      form.inline(method='POST' action=`/admin/skills/${skill.id}/approve`)
+                        input(type='hidden' name='_csrf' value=csrfToken)
+                        button(class='text-[#059669] hover:underline font-bold text-xs' type='submit') Approve
+                      form.inline(method='POST' action=`/admin/skills/${skill.id}/reject`)
+                        input(type='hidden' name='_csrf' value=csrfToken)
+                        button(class='text-rose-600 hover:underline font-bold text-xs' type='submit') Reject
+                    else
+                      span.text-slate-400 Reviewed

@@ -51,6 +51,16 @@ function uploadAvatarMiddleware(req, res, next) {
 }
 
 /**
+ * Run multer avatar upload only for multipart/form-data requests (optional avatar on profile edit).
+ */
+function uploadOptionalAvatarMiddleware(req, res, next) {
+  if (!req.is('multipart/form-data')) {
+    return next();
+  }
+  return uploadAvatarMiddleware(req, res, next);
+}
+
+/**
  * Validate CSRF token after multer parses multipart/form-data fields,
  * cleaning up any temporary uploaded file if CSRF fails.
  */
@@ -64,5 +74,6 @@ async function verifyMultipartCsrf(req, _res, next) {
 
 module.exports = {
   uploadAvatarMiddleware,
+  uploadOptionalAvatarMiddleware,
   verifyMultipartCsrf,
 };

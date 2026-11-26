@@ -2,7 +2,11 @@ const express = require('express');
 const profileController = require('../controllers/profileController');
 const { requireAuth } = require('../middlewares/auth');
 const { validate } = require('../middlewares/validate');
-const { uploadAvatarMiddleware, verifyMultipartCsrf } = require('../middlewares/upload');
+const {
+  uploadAvatarMiddleware,
+  uploadOptionalAvatarMiddleware,
+  verifyMultipartCsrf,
+} = require('../middlewares/upload');
 const { profileEditSchema, userIdParamSchema } = require('../validators/profileValidator');
 
 const router = express.Router();
@@ -13,6 +17,8 @@ router.get('/profile/edit', requireAuth, profileController.showEditProfile);
 router.post(
   '/profile/edit',
   requireAuth,
+  uploadOptionalAvatarMiddleware,
+  verifyMultipartCsrf,
   validate(profileEditSchema, {
     onError: (req, res, next, { firstMessage, fieldErrors }) =>
       profileController.renderEditProfileError(req, res, next, 400, firstMessage, fieldErrors),

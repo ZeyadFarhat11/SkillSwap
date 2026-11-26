@@ -1,0 +1,32 @@
+extends ../layouts/base
+include ../partials/matchCard
+
+block content
+  main(class='flex-1 px-12 py-8 overflow-y-auto max-w-7xl' data-purpose='swap-feed')
+    header.mb-8
+      h1(class='text-[26px] font-extrabold text-[#0052cc] tracking-tight') Swap Requests
+      p.text-sm.text-slate-500.mt-1 Review incoming requests, track sent requests, or start a new swap.
+
+    section.mb-10.space-y-4
+      h2.text-lg.font-bold.text-slate-900 Incoming &amp; Outgoing Requests
+      each reqItem in swapRequests
+        article(class='bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4')
+          .space-y-1
+            p.text-base.font-bold.text-slate-900= reqItem.partnerName
+            p.text-xs.text-slate-500
+              | Wants:
+              span.font-semibold.text-slate-700= ` ${reqItem.wantedSkill}`
+              |  • Offers:
+              span.font-semibold.text-slate-700= ` ${reqItem.offeredSkill || 'Points (One-way)'}`
+          .flex.items-center.gap-3
+            span(class='px-3 py-1 rounded-full text-xs font-semibold bg-[#E2EEFE] text-[#1D5494] capitalize')= reqItem.status
+            if reqItem.direction === 'incoming' && reqItem.status === 'pending'
+              a(class='px-4 py-2 rounded-full bg-[#0052cc] text-white text-xs font-semibold hover:bg-[#0043a8]' href='#') Accept
+              a(class='px-4 py-2 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100' href='#') Decline
+            else if reqItem.direction === 'outgoing' && reqItem.status === 'pending'
+              a(class='px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200' href='#') Cancel
+
+    section.space-y-6
+      h2.text-lg.font-bold.text-slate-900 Swap With
+      each match in swapCandidates
+        +matchCard(match)

@@ -32,9 +32,19 @@
     - `src/middlewares/upload.js` (`multer` 5 MB disk storage + `verifyMultipartCsrf`), updated `src/middlewares/{csrf,validate}.js`, added `src/controllers/{profileController,skillController,availabilityController}.js`, `src/routes/{profileRoutes,skillRoutes,availabilityRoutes}.js`, mounted in `src/app.js`.
   - Views & assets:
     - Converted matching pages to Pug: `src/views/pages/{profile,profileEdit,skills,availability}.pug`, updated `src/views/partials/navbar.pug`, added `public/js/profile.js`, rebuilt `public/css/app.css`.
+  - Tests & checks: `tests/profile.test.js` passing.
+
+- **Phase 4 (Convert remaining pages to Pug with placeholder data)** — implemented and tested:
+  - Updated [docs/ARCHITECTURE.md](ARCHITECTURE.md) Section 8 routes table (`GET /`, `GET /welcome`, `GET /sessions/:id/review`).
+  - Shared layout & partials:
+    - Updated `src/views/layouts/base.pug` to support `useSidebar` and `isAdminLayout` alongside `navbar`/`footer`.
+    - Added `src/views/partials/{sidebar,adminSidebar,matchCard,reviews}.pug`; included `partials/reviews` in `src/views/pages/profile.pug`.
+  - Converted remaining Pug pages (with placeholder data in `src/controllers/pageController.js` and routes in `src/routes/pageRoutes.js`):
+    - `welcome.pug` (`GET /` for guests from `begin/welcome.html`), `welcomePoints.pug` (`GET /welcome` from `begin/get3points.html`), `suggestions.pug` (`GET /suggestions` from `userdash.html`), `requests.pug` (`GET /requests` from `swap/swap.html`), `sessions.pug` (`GET /sessions` from `session/session.html` + `schedulers/scheduler1.html`), `reviewForm.pug` (`GET /sessions/:id/review` from `user1/leaverev1.html`), `messages.pug` (`GET /messages` from `chat/chathis.html`), `chat.pug` (`GET /messages/:userId` from `user1/chat1.html`), `points.pug` (`GET /points` from `points/points.html`), `reports.pug` (`GET /reports` from `user1/report1.html`), `adminUsers.pug` (`GET /admin/users` from `admin/usermange1.html`), `adminSkills.pug` (`GET /admin/skills` from `admin/skill.html`), `adminReports.pug` (`GET /admin/reports` matching the admin table layout).
+  - Updated `src/controllers/authController.js` (`register` -> `/welcome`, `login` -> `/suggestions`) and `src/controllers/profileController.js` (passes `reviews: []`, `averageRating: null` placeholder for `partials/reviews`).
   - Tests & checks:
-    - `tests/profile.test.js` added (`formatPrismaTime`, profile view/edit + project links, real `sharp`/`file-type` 400x400 avatar upload + fake-image rejection + `/uploads` serving + multipart CSRF, approved-only & no-dual-type skills + ownership, availability overlap/end-time/ownership).
-    - `npm run lint` passes (0 errors/warnings); `npm run build:css` passes (`Done in 409ms`); `npx jest --runInBand --detectOpenHandles` passes (4/4 suites, 22/22 tests).
+    - Added `tests/pages.test.js`, extended `tests/profile.test.js` (WebP/JPEG + combined `POST /profile/edit` avatar save), and updated `tests/auth.test.js` for `/welcome` and `/suggestions` redirects.
+    - All 21 Pug templates compile cleanly; `npm run lint` passes (0 errors/warnings); `npx jest --runInBand --detectOpenHandles` passes (5/5 suites, 26/26 tests).
 
 ## Decisions
 
@@ -49,30 +59,49 @@ Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
 4. **Seed admin user & env variable (`prisma/seed.js`, `.env.example`)**: Added `SEED_ADMIN_PASSWORD` (beyond section 12 of `ARCHITECTURE.md`) so `prisma/seed.js` creates `admin@skillswap.local` with `STARTER_POINTS` and a `bonus` transaction idempotently.
 5. **Non-production env defaults (`src/config/env.js`)**: Provided dev/test fallback defaults for `DATABASE_URL` and `SESSION_SECRET` when `NODE_ENV !== 'production'`, and enforced a 12-char minimum on `SESSION_SECRET` outside `test`.
 6. **Helmet CSP & Tailwind plugins (`src/app.js`, `tailwind.config.js`)**: Enabled Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`), `data:` images, and `'unsafe-inline'` styles in Helmet CSP; included `@tailwindcss/forms` and `@tailwindcss/container-queries` plus theme palette/fonts matching `frontend-original/`.
-7. **Health check & placeholder home (`src/app.js`)**: Added `GET /health` (`200 { status: 'ok' }`) and a temporary `GET /` rendering `pages/home`.
+7. **Health check (`src/app.js`)**: Added `GET /health` (`200 { status: 'ok' }`).
 8. **Registration name & confirmation fields (`src/validators/authValidator.js`, `src/views/pages/register.pug`)**: `frontend-original/begin/signup.html` uses `firstName`, `lastName`, and `confirmPassword`, whereas `users.name` is a single column. `registerSchema` accepts `firstName` + `lastName` (concatenated into `name`) or `name`, and enforces `confirmPassword === password`.
 9. **Auth session & response semantics (`src/controllers/authController.js`, `src/services/authService.js`)**:
-   - Successful registration and login both regenerate the session (`req.session.regenerate`), rotate the CSRF token, flash a success message, and redirect to `/`.
+   - Successful registration regenerates the session, rotates the CSRF token, flashes a starter-points message, and redirects to `/welcome`; successful login regenerates the session, rotates the CSRF token, and redirects to `/suggestions`.
    - Auth failures re-render the form with explicit HTTP status codes (`400` Zod validation, `401` invalid credentials, `403` suspended account checked after password verification, `409` duplicate email), flash error messages, and safe repopulated fields (`firstName`, `lastName`, `email` — never passwords).
    - `POST /logout` destroys the session, clears `skillswap.sid`, and redirects to `/login`.
-10. **CSRF configuration (`src/middlewares/csrf.js`, `src/middlewares/upload.js`)**: Configured `csrf-csrf` (`doubleCsrf`) with cookie `skillswap.x-csrf-token` (`__Host-skillswap.x-csrf-token` with `secure: true` in production), reading tokens from `req.body._csrf` or `x-csrf-token`, using `String(req.session?.user?.id || 'guest')` as the session identifier, and force-rotating the cookie via `rotateCsrfToken` on login/register. Global `csrfProtection` skips `POST /profile/avatar` so `multer` can parse `multipart/form-data` first, followed immediately by `verifyMultipartCsrf` (which deletes the temp file if CSRF fails).
+10. **CSRF configuration (`src/middlewares/csrf.js`, `src/middlewares/upload.js`)**: Configured `csrf-csrf` (`doubleCsrf`) with cookie `skillswap.x-csrf-token` (`__Host-skillswap.x-csrf-token` with `secure: true` in production), reading tokens from `req.body._csrf` or `x-csrf-token`, using `String(req.session?.user?.id || 'guest')` as the session identifier, and force-rotating the cookie via `rotateCsrfToken` on login/register. Global `csrfProtection` skips `POST /profile/avatar` and multipart `POST /profile/edit` so `multer` can parse `multipart/form-data` first, followed immediately by `verifyMultipartCsrf` (which deletes the temp file if CSRF fails).
 11. **Rate limit configuration (`src/middlewares/rateLimiter.js`)**: Applied `loginLimiter` and `registerLimiter` (20 requests per 15 minutes per IP) on `POST /login` and `POST /register` (leaving `GET` views unrestricted), rendering `pages/error` with status `429`.
 12. **Auth client JS & omitted forgot-password link (`public/js/auth.js`, `src/views/pages/{login,register}.pug`)**: Extracted inline JS from `login.html` and `signup.html` into `public/js/auth.js` to satisfy Helmet's `script-src 'self'` CSP, kept native POST submission instead of static HTML mock redirects, and omitted the unrouted `forgot-password.html` link per `ARCHITECTURE.md`.
 13. **Validation & error helper (`src/utils/AppError.js`, `src/middlewares/validate.js`, `src/middlewares/errorHandler.js`)**: Added `AppError` (statusCode + `fieldErrors`), `validate` middleware with `view` and `onError` hooks for status `400` form re-renders, and `400`/`401`/`429` status titles in `errorHandler.js`.
-14. **Project links via `/profile/edit` (`src/validators/profileValidator.js`, `src/models/userModel.js`, `src/views/pages/profileEdit.pug`, `public/js/profile.js`)**: Managed `user_project_links` inside `GET/POST /profile/edit` (up to 10 deduplicated `http://`/`https://` URLs replaced atomically in `prisma.$transaction`) rather than adding extra routes outside section 8.
-15. **Avatar storage path & cleanup (`src/services/storageService.js`, `src/services/profileService.js`)**: Stored relative path `<uploadDir>/<uuid>.<ext>` (e.g., `uploads/<uuid>.png`) in `users.avatar_path` to pair with `/uploads` static serving, auto-oriented images via `sharp().rotate().resize(400, 400, { fit: 'cover' })`, and deleted temporary uploads and replaced avatar files.
+14. **Combined profile + avatar save (`src/validators/profileValidator.js`, `src/models/userModel.js`, `src/controllers/profileController.js`, `src/views/pages/profileEdit.pug`, `public/js/profile.js`)**: Managed `user_project_links` inside `GET/POST /profile/edit` (up to 10 deduplicated `http://`/`https://` URLs replaced atomically in `prisma.$transaction`) alongside optional multipart `avatar` upload (previewed locally via `FileReader` and saved only when clicking **Save Changes**, with header link renamed to **Cancel** and `POST /profile/avatar` kept intact for Section 8 compatibility).
+15. **Avatar storage path & Windows lock safety (`src/services/storageService.js`, `src/services/profileService.js`)**: Stored normalized relative path `<uploadDir>/<uuid>.<ext>` (e.g., `uploads/<uuid>.png`) in `users.avatar_path` to pair with `/uploads` static serving, disabled `sharp.cache(false)` and processed buffered temp uploads (`fs.readFile` -> `FileType.fromBuffer` -> `sharp(inputBuffer).rotate().resize(400, 400, { fit: 'cover' })`) to avoid Windows `EBUSY` unlink locks (notably on WebP), and deleted temporary and replaced avatar files.
 16. **Public profile access (`src/routes/profileRoutes.js`, `src/services/profileService.js`)**: `GET /users/:id` requires `requireAuth`, hides private fields (`email`, `pointsBalance`) for peer views, and returns `404` for missing or `suspended` users.
 17. **Prisma `Time` formatting & adjacent availability (`src/utils/time.js`, `src/services/availabilityService.js`)**: `formatPrismaTime` reads UTC hours/minutes (`getUTCHours`/`getUTCMinutes`) to avoid local timezone offset shifts, and overlap checking uses half-open intervals (`newStart < existingEnd && existingStart < newEnd`) so adjacent back-to-back slots are allowed.
-18. **Navbar links (`src/views/partials/navbar.pug`)**: Added `Skills` (`/skills`) and `Availability` (`/availability`) links for authenticated users.
+18. **Sidebar-only app layout & omitted navbar (`src/views/layouts/base.pug`, `src/views/partials/{sidebar,adminSidebar}.pug`, `src/views/pages/*.pug`)**: Omitted the top `navbar.pug` completely so all authenticated app pages (including Phases 3 and 4 pages) consistently use the left `sidebar` / `adminSidebar` layout (`!hideSidebar && (useSidebar || currentUser)`), while guest/onboarding/standalone views (`welcome`, `welcomePoints`, `login`, `register`, `reviewForm`) pass `hideSidebar: true`. Replaced external `lh3.googleusercontent.com` mock URLs with initials badges (respecting Helmet `imgSrc: ["'self'", 'data:']`), and replaced FontAwesome CDN icons with inline SVGs.
+19. **Starter points welcome screen (`src/views/pages/welcomePoints.pug`)**: `frontend-original/begin/get3points.html` displays `+3 POINTS`; `welcomePoints.pug` renders `STARTER_POINTS` dynamically (`+20` by default, or `+3` if `STARTER_POINTS=3` is configured in `.env`).
+
+## Deferred pages
+
+Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTURE.md` scope for now):
+
+- `frontend-original/index.html`, `frontend-original/begin/splash.html` (meta-refresh / timed splash redirect; `GET /` serves `begin/welcome.html` directly for guests)
+- `frontend-original/begin/role.html` (separate role-selection pre-login page; single `/login` route used for all roles)
+- `frontend-original/search/search1.html`, `frontend-original/search/search2.html` (separate search pages; `/suggestions` uses `userdash.html`)
+- `frontend-original/progress.html` (gamified levels, streaks, badges, certificates)
+- `frontend-original/coins/coins.html` (Coins Wallet; `/points` uses `points/points.html`)
+- `frontend-original/notification/notification.html` (Notifications page)
+- `frontend-original/user1..user10/session1..10.html` (10 static copies — Live Video Session call screen)
+- `frontend-original/user1..user10/summary1..10.html` (10 static copies — AI Session Summary & Quiz)
+- `frontend-original/admin/login.html` (dropped; admins use `/login`)
+- `frontend-original/admin/fee.html` (Fees Management)
+- `frontend-original/admin/wallet.html` (Wallet Management)
+- `frontend-original/admin/session.html` (Admin Session Management)
+- `frontend-original/admin/settings.html` (Admin Settings)
 
 ## Known issues
 
 - **Sandbox restrictions on Windows**: Inside the sandbox, `npm test` fails Supertest loopback binds (`connect EACCES 127.0.0.1:<port>`), `npm run build:css` fails with `EPERM` opening `public/css/app.css`, and `.git/*.lock` file creation fails with `Permission denied`. All succeed when run outside the sandbox.
-- **DB runtime / seed status unverified here**: MySQL container startup, `prisma migrate dev`, and `prisma/seed.js` execution remain unverified (`localhost:3306` unreachable from sandbox). Phase 2 & Phase 3 tests use in-memory transactional Prisma mocks.
+- **DB runtime / seed status unverified here**: MySQL container startup, `prisma migrate dev`, and `prisma/seed.js` execution remain unverified (`localhost:3306` unreachable from sandbox). Phase 2–4 tests use in-memory Prisma mocks.
 - **Prisma `package.json#prisma` deprecation warning**: `npx prisma validate` warns that `package.json#prisma` is deprecated and will be removed in Prisma 7.
-- **`frontend-original/` vs. section 8 routes**: `frontend-original/` contains subdirectories (`begin/`, `admin/`, `chat/`, `coins/`, `notification/`, `points/`, `schedulers/`, `search/`, `session/`, `swap/`, `user1..user10/`). Before Phase 4, map exact HTML pages to section 8 routes and ask the team about any mismatches.
+- **No standalone `GET /reviews` route**: Sidebars in `frontend-original/` do not link to `/reviews`; received reviews render via `partials/reviews.pug` on `/profile` and `/users/:id` (with empty placeholder arrays until Phase 6).
 
 ## Next
 
-- Review Phase 3 on branch `phase-3-profile` (and commit/merge when ready), and verify MySQL migration + seed when Docker/MySQL is running.
-- Before **Phase 4** ("Convert the remaining pages to Pug"), reconcile the full list of `frontend-original/` HTML files against section 8 routes per `docs/ARCHITECTURE.md`.
+- Review Phase 4 on branch `phase-4-remaining-pages` (and commit/merge when ready).
+- Begin **Phase 5**: Swap requests (`POST /requests`, `/accept`, `/decline`, `/cancel`) and Sessions (`POST /sessions` with shared availability validation, `/complete` with transactional one-way points transfer & row locking, `/cancel`).

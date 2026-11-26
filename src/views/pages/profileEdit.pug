@@ -5,29 +5,26 @@ block content
     .w-full.space-y-7
       header.flex.items-center.justify-between.pt-1.pb-2(data-purpose='navigation-header')
         h1(class='text-[26px] font-extrabold text-[#111827] tracking-tight') Edit Profile
-        a(class='text-[#0057C2] text-lg font-semibold hover:underline' href='/profile' data-purpose='done-button') Done
+        a(class='text-[#0057C2] text-lg font-semibold hover:underline' href='/profile' data-purpose='cancel-button') Cancel
 
-      section.flex.flex-col.items-center.justify-center.pt-1.pb-4(data-purpose='profile-avatar-container')
-        .relative.w-28.h-28.rounded-full.overflow-hidden.bg-white.shadow-sm.border.border-slate-100.flex.items-center.justify-center.mb-3
-          if profile.avatarPath
-            img.w-full.h-full.object-cover.object-top(alt='Profile Avatar' src=`/${profile.avatarPath}`)
-          else
-            span(class='text-3xl font-extrabold text-[#0057C2]')= profile.name ? profile.name.charAt(0).toUpperCase() : 'U'
-
-        form#avatarForm.flex.flex-col.items-center.gap-3(method='POST' action='/profile/avatar' enctype='multipart/form-data')
-          input(type='hidden' name='_csrf' value=csrfToken)
-          input#avatarInput(
-            class='text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border file:border-[#0057C2] file:text-xs file:font-semibold file:bg-white file:text-[#0057C2] hover:file:bg-blue-50 cursor-pointer'
-            type='file'
-            name='avatar'
-            accept='image/jpeg,image/png,image/webp'
-            required
-          )
-          button(class='text-[#0057C2] font-semibold text-[15px] hover:underline cursor-pointer focus:outline-none' data-purpose='change-photo-action' type='submit') Upload Profile Photo
-          p.text-xs.text-slate-400 JPEG, PNG, or WebP (max 5 MB, resized to 400x400)
-
-      form#profileEditForm.space-y-6(method='POST' action='/profile/edit' data-purpose='profile-edit-form' novalidate)
+      form#profileEditForm.space-y-6(method='POST' action='/profile/edit' enctype='multipart/form-data' data-purpose='profile-edit-form' novalidate)
         input(type='hidden' name='_csrf' value=csrfToken)
+
+        section.flex.flex-col.items-center.justify-center.pt-1.pb-4(data-purpose='profile-avatar-container')
+          #avatarPreviewContainer.relative.w-28.h-28.rounded-full.overflow-hidden.bg-white.shadow-sm.border.border-slate-100.flex.items-center.justify-center.mb-3
+            if profile.avatarPath
+              img#avatarPreviewImg.w-full.h-full.object-cover.object-top(alt='Profile Avatar' src=`/${profile.avatarPath}`)
+            else
+              span#avatarPreviewFallback(class='text-3xl font-extrabold text-[#0057C2]')= profile.name ? profile.name.charAt(0).toUpperCase() : 'U'
+
+          .flex.flex-col.items-center.gap-2
+            input#avatarInput(
+              class='text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border file:border-[#0057C2] file:text-xs file:font-semibold file:bg-white file:text-[#0057C2] hover:file:bg-blue-50 cursor-pointer'
+              type='file'
+              name='avatar'
+              accept='image/jpeg,image/png,image/webp'
+            )
+            p.text-xs.text-slate-400 JPEG, PNG, or WebP (max 5 MB, resized to 400x400). Saved when you click Save Changes.
 
         .space-y-2
           label(class='block text-[13px] font-bold tracking-wider text-slate-500 uppercase' for='name') FULL NAME

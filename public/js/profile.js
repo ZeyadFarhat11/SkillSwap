@@ -1,4 +1,33 @@
 (function () {
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarPreviewContainer = document.getElementById('avatarPreviewContainer');
+
+  if (avatarInput && avatarPreviewContainer) {
+    avatarInput.addEventListener('change', () => {
+      const file = avatarInput.files && avatarInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target && event.target.result;
+        if (typeof dataUrl !== 'string') return;
+
+        let previewImg = document.getElementById('avatarPreviewImg');
+        if (!previewImg) {
+          const fallback = document.getElementById('avatarPreviewFallback');
+          if (fallback) fallback.remove();
+          previewImg = document.createElement('img');
+          previewImg.id = 'avatarPreviewImg';
+          previewImg.alt = 'Profile Avatar';
+          previewImg.className = 'w-full h-full object-cover object-top';
+          avatarPreviewContainer.appendChild(previewImg);
+        }
+        previewImg.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   const bioInput = document.getElementById('bio');
   const bioCounter = document.getElementById('bio-counter');
 

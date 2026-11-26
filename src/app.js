@@ -13,6 +13,7 @@ const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const skillRoutes = require('./routes/skillRoutes');
 const availabilityRoutes = require('./routes/availabilityRoutes');
+const pageRoutes = require('./routes/pageRoutes');
 
 const app = express();
 
@@ -63,10 +64,7 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.get('/', (_req, res) => {
-  res.render('pages/home', { title: 'Welcome' });
-});
-
+app.use(pageRoutes);
 app.use(authRoutes);
 app.use(profileRoutes);
 app.use(skillRoutes);

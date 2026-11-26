@@ -1,0 +1,53 @@
+extends ../layouts/base
+
+block content
+  .flex-1.flex.flex-col.min-w-0
+    header.h-20.bg-white.border-b.border-slate-100.flex.items-center.justify-between.px-10
+      h1.text-xl.font-bold.text-slate-800 User Management
+      .text-sm.font-medium.text-slate-500
+        span.text-blue-600.font-medium User Management
+        span.mx-1.text-slate-300 /
+        span Admin
+
+    main.p-10.max-w-7xl.space-y-8
+      section(class='grid grid-cols-1 md:grid-cols-3 gap-6' data-purpose='metrics-summary')
+        .bg-white.rounded-2xl.p-6.text-center.card-shadow.border.border-slate-100.flex.flex-col.justify-center.items-center.h-32
+          p.text-sm.font-medium.text-slate-500.mb-1 Users
+          h2.text-2xl.font-bold.text-slate-900= summary.totalUsers
+        .bg-white.rounded-2xl.p-6.text-center.card-shadow.border.border-slate-100.flex.flex-col.justify-center.items-center.h-32
+          p.text-sm.font-medium.text-slate-500.mb-1 Active
+          h2.text-2xl.font-bold.text-slate-900= summary.activeUsers
+        .bg-white.rounded-2xl.p-6.text-center.card-shadow.border.border-slate-100.flex.flex-col.justify-center.items-center.h-32
+          p.text-sm.font-medium.text-slate-500.mb-1 Suspended
+          h2.text-2xl.font-bold.text-slate-900= summary.suspendedUsers
+
+      section.bg-white.rounded-2xl.card-shadow.border.border-slate-100.overflow-hidden(data-purpose='star-users-table')
+        .px-7.py-5.flex.items-center.justify-between.border-b.border-slate-50
+          h3.text-base.font-bold.text-slate-800 All Users
+        .overflow-x-auto
+          table.w-full.text-left.text-xs
+            thead
+              tr.bg-slate-50.text-slate-600.font-semibold.border-b.border-slate-100
+                th(class='py-3.5 px-8' scope='col') ID
+                th(class='py-3.5 px-6' scope='col') User
+                th(class='py-3.5 px-6' scope='col') Email
+                th(class='py-3.5 px-6' scope='col') Status
+                th(class='py-3.5 px-6 text-center' scope='col') Points
+                th(class='py-3.5 px-8 text-right' scope='col') Action
+            tbody.divide-y.divide-slate-100.text-slate-600
+              each userItem in users
+                tr(class='hover:bg-slate-50/50 transition-colors')
+                  td(class='py-3.5 px-8 font-normal text-slate-500')= userItem.id
+                  td(class='py-3.5 px-6 font-medium text-slate-800')= userItem.name
+                  td(class='py-3.5 px-6 text-slate-500')= userItem.email
+                  td(class='py-3.5 px-6 capitalize')= userItem.status
+                  td(class='py-3.5 px-6 text-center')= userItem.pointsBalance
+                  td(class='py-3.5 px-8 text-right')
+                    if userItem.status === 'active'
+                      form.inline(method='POST' action=`/admin/users/${userItem.id}/suspend`)
+                        input(type='hidden' name='_csrf' value=csrfToken)
+                        button(class='text-rose-600 hover:underline font-semibold' type='submit') Suspend
+                    else
+                      form.inline(method='POST' action=`/admin/users/${userItem.id}/reactivate`)
+                        input(type='hidden' name='_csrf' value=csrfToken)
+                        button(class='text-emerald-600 hover:underline font-semibold' type='submit') Reactivate

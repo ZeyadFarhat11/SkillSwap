@@ -1,0 +1,34 @@
+mixin matchCard(match)
+  article(class='bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)]' data-purpose='match-card')
+    .flex.items-center.justify-between.mb-4
+      .flex.items-center.gap-3
+        if match.avatarPath
+          img(alt=match.name class='w-11 h-11 rounded-full object-cover' src=`/${match.avatarPath}`)
+        else
+          div(class='w-11 h-11 rounded-full bg-[#e9f0fc] text-[#0058b8] flex items-center justify-center font-bold text-sm shrink-0')= match.name.charAt(0).toUpperCase()
+        div
+          a.no-underline(href=`/users/${match.id}`)
+            h3(class='text-sm font-bold text-slate-900 leading-tight hover:text-[#0058b8]')= match.name
+          p.text-xs.text-slate-400.font-medium= match.roleTitle || 'SkillSwap Member'
+      div(class='inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#f2f6fe] border border-blue-100 text-xs font-semibold text-[#0058b8]')
+        span.text-amber-400.text-xs ★
+        span(class='text-[11px] font-bold')= match.rating
+        if match.score
+          span(class='text-[10px] text-slate-500 ml-1')= `${match.score}%`
+
+    div(class='bg-[#F8FAFC] rounded-xl p-4 mb-4 space-y-2.5')
+      .flex.flex-wrap.items-center.gap-2
+        span(class='text-[11px] font-bold uppercase tracking-wider text-slate-500 w-16 shrink-0') TEACHES:
+        .flex.flex-wrap.gap-2
+          each skill in (match.teaches || [])
+            span(class='inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#D7FBE8] text-[#136C3D]')= skill
+      .flex.flex-wrap.items-center.gap-2
+        span(class='text-[11px] font-bold uppercase tracking-wider text-slate-500 w-16 shrink-0') LEARNS:
+        .flex.flex-wrap.gap-2
+          each skill in (match.learns || [])
+            span(class='inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-[#E4EFFF] text-[#1B5ECC]')= skill
+
+    a(
+      class='block w-full text-center py-2.5 bg-[#0058b8] hover:bg-[#004ba0] text-white font-semibold text-sm rounded-full transition-colors shadow-sm'
+      href=match.ctaHref || '/requests'
+    )= match.ctaLabel || 'Schedule Swap'

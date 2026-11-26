@@ -12,6 +12,8 @@ async function renderAvailabilityPage(
     const slots = await availabilityService.listUserAvailability(req.session.user.id);
     const locals = {
       title: 'My Availability',
+      activeNav: 'availability',
+      hideFooter: true,
       slots,
       dayNames: DAY_NAMES,
       errors: fieldErrors,

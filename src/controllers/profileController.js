@@ -1,4 +1,5 @@
 const profileService = require('../services/profileService');
+const storageService = require('../services/storageService');
 const AppError = require('../utils/AppError');
 
 async function showOwnProfile(req, res, next) {
@@ -8,8 +9,12 @@ async function showOwnProfile(req, res, next) {
     });
     return res.render('pages/profile', {
       title: 'My Profile',
+      activeNav: 'profile',
+      hideFooter: true,
       profile,
       isOwnProfile: true,
+      reviews: [],
+      averageRating: null,
     });
   } catch (err) {
     return next(err);
@@ -25,8 +30,12 @@ async function showUserProfile(req, res, next) {
     });
     return res.render('pages/profile', {
       title: profile.name,
+      activeNav: isOwnProfile ? 'profile' : '',
+      hideFooter: true,
       profile,
       isOwnProfile,
+      reviews: [],
+      averageRating: null,
     });
   } catch (err) {
     return next(err);
@@ -40,6 +49,8 @@ async function showEditProfile(req, res, next) {
     });
     return res.render('pages/profileEdit', {
       title: 'Edit Profile',
+      activeNav: 'profile',
+      hideFooter: true,
       profile,
       errors: {},
       formData: {
@@ -55,6 +66,8 @@ async function showEditProfile(req, res, next) {
 
 async function renderEditProfileError(req, res, next, statusCode, message, fieldErrors = {}) {
   try {
+    await storageService.safeUnlink(req.file?.path);
+
     const profile = await profileService.getProfile(req.session.user.id, {
       includePrivate: true,
     });
@@ -67,6 +80,8 @@ async function renderEditProfileError(req, res, next, statusCode, message, field
 
     return res.status(statusCode).render('pages/profileEdit', {
       title: 'Edit Profile',
+      activeNav: 'profile',
+      hideFooter: true,
       profile,
       errors: fieldErrors,
       formData: {
@@ -87,13 +102,19 @@ async function renderEditProfileError(req, res, next, statusCode, message, field
 
 async function updateProfile(req, res, next) {
   try {
+    if (req.uploadError) {
+      throw req.uploadError;
+    }
+
     const updatedUser = await profileService.updateProfile(
       req.session.user.id,
-      req.validatedBody
+      req.validatedBody,
+      req.file
     );
     req.session.user = {
       ...req.session.user,
       name: updatedUser.name,
+      avatarPath: updatedUser.avatarPath,
     };
     req.flash('success', 'Profile updated successfully.');
     return req.session.save((saveErr) => {

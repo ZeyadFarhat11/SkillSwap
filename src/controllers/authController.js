@@ -7,7 +7,7 @@ const { extractSafeFormData } = require('../middlewares/validate');
 const REGISTER_VIEW_OPTIONS = {
   view: 'pages/register',
   title: 'Sign Up',
-  hideNavbar: true,
+  hideSidebar: true,
   hideFooter: true,
   bodyClass:
     'bg-white text-slate-800 min-h-screen flex flex-col justify-start items-center pt-24 pb-16 px-4 selection:bg-blue-100 selection:text-blue-900 font-sans',
@@ -16,7 +16,7 @@ const REGISTER_VIEW_OPTIONS = {
 const LOGIN_VIEW_OPTIONS = {
   view: 'pages/login',
   title: 'Log In',
-  hideNavbar: true,
+  hideSidebar: true,
   hideFooter: true,
   bodyClass:
     'bg-[#f8fafc] text-slate-800 min-h-screen flex flex-col justify-between font-sans selection:bg-blue-100 selection:text-blue-900',
@@ -26,7 +26,7 @@ const LOGIN_VIEW_OPTIONS = {
  * Regenerate the session to prevent session fixation, attach the user,
  * rotate the CSRF cookie, and redirect home.
  */
-function establishUserSession(req, res, next, user, successMessage) {
+function establishUserSession(req, res, next, user, successMessage, redirectTo = '/suggestions') {
   req.session.regenerate((regenErr) => {
     if (regenErr) {
       return next(regenErr);
@@ -39,7 +39,7 @@ function establishUserSession(req, res, next, user, successMessage) {
         if (saveErr) {
           return next(saveErr);
         }
-        return res.redirect('/');
+        return res.redirect(redirectTo);
       });
     } catch (err) {
       return next(err);
@@ -63,7 +63,8 @@ async function register(req, res, next) {
       res,
       next,
       user,
-      `Welcome to SkillSwap! You received ${STARTER_POINTS} starter points.`
+      `Welcome to SkillSwap! You received ${STARTER_POINTS} starter points.`,
+      '/welcome'
     );
   } catch (err) {
     if (err instanceof AppError) {

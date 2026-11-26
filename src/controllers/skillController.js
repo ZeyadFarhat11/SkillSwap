@@ -6,6 +6,8 @@ async function renderSkillsPage(req, res, next, { statusCode = 200, errorMessage
     const data = await skillService.getSkillsPageData(req.session.user.id);
     const locals = {
       title: 'My Skills',
+      activeNav: 'skills',
+      hideFooter: true,
       ...data,
       formData,
     };

@@ -17,8 +17,11 @@ const { generateToken, validateRequest, invalidCsrfTokenError, doubleCsrfProtect
     size: 64,
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
     getTokenFromRequest: (req) => req.body?._csrf || req.headers['x-csrf-token'],
-    // Multipart forms cannot be parsed before multer; /profile/avatar runs validateRequest right after multer.
-    skipCsrfProtection: (req) => req.method === 'POST' && req.path === '/profile/avatar',
+    // Multipart forms cannot be parsed before multer; multipart routes run verifyMultipartCsrf right after multer.
+    skipCsrfProtection: (req) =>
+      req.method === 'POST' &&
+      (req.path === '/profile/avatar' ||
+        (req.path === '/profile/edit' && Boolean(req.is('multipart/form-data')))),
   });
 
 /**

@@ -252,15 +252,19 @@ describe('Phase 2 Auth routes, CSRF, sessions, and middleware', () => {
     });
 
     expect(regRes.statusCode).toBe(302);
-    expect(regRes.headers.location).toBe('/');
+    expect(regRes.headers.location).toBe('/welcome');
     expect(mockUsers).toHaveLength(1);
     expect(mockPointsTransactions).toHaveLength(1);
     expect(mockPointsTransactions[0].amount).toBe(STARTER_POINTS);
 
-    const homeRes = await agent.get('/');
-    expect(homeRes.statusCode).toBe(200);
-    expect(homeRes.text).toContain('Ada Lovelace');
-    expect(homeRes.text).toContain(`You received ${STARTER_POINTS} starter points`);
+    const welcomeRes = await agent.get('/welcome');
+    expect(welcomeRes.statusCode).toBe(200);
+    expect(welcomeRes.text).toContain(`+${STARTER_POINTS}`);
+    expect(welcomeRes.text).toContain(`You received ${STARTER_POINTS} starter points`);
+
+    const dashRes = await agent.get('/suggestions');
+    expect(dashRes.statusCode).toBe(200);
+    expect(dashRes.text).toContain('Ada Lovelace');
 
     // Second registration with same email (fresh agent) returns 409 + flash message
     const agent2 = request.agent(app);
@@ -321,18 +325,18 @@ describe('Phase 2 Auth routes, CSRF, sessions, and middleware', () => {
       password: 'Password123!',
     });
     expect(successRes.statusCode).toBe(302);
-    expect(successRes.headers.location).toBe('/');
+    expect(successRes.headers.location).toBe('/suggestions');
     const setCookies = successRes.headers['set-cookie'] || [];
     const sidCookie = setCookies.find((c) => c.startsWith('skillswap.sid='));
     expect(sidCookie).toBeTruthy();
 
-    const homeRes = await agent.get('/');
-    expect(homeRes.statusCode).toBe(200);
-    expect(homeRes.text).toContain('Grace Hopper');
-    expect(homeRes.text).toContain('Welcome back!');
+    const dashRes = await agent.get('/suggestions');
+    expect(dashRes.statusCode).toBe(200);
+    expect(dashRes.text).toContain('Grace Hopper');
+    expect(dashRes.text).toContain('Welcome back!');
 
     // Logout requires CSRF and clears session
-    const postLoginCsrf = extractCsrfToken(homeRes.text);
+    const postLoginCsrf = extractCsrfToken(dashRes.text);
     const badLogout = await agent.post('/logout').type('form').send({});
     expect(badLogout.statusCode).toBe(403);
 
@@ -340,8 +344,9 @@ describe('Phase 2 Auth routes, CSRF, sessions, and middleware', () => {
     expect(logoutRes.statusCode).toBe(302);
     expect(logoutRes.headers.location).toBe('/login');
 
-    const homeAfterLogout = await agent.get('/');
-    expect(homeAfterLogout.text).not.toContain('Grace Hopper');
+    const rootAfterLogout = await agent.get('/');
+    expect(rootAfterLogout.statusCode).toBe(200);
+    expect(rootAfterLogout.text).not.toContain('Grace Hopper');
   });
 
   test('POST /login regenerates an existing session ID', async () => {
