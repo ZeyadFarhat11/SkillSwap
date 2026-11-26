@@ -1,19 +1,23 @@
 extends ../layouts/base
-include ../partials/matchCard
 
 block content
   main(class='flex-1 px-12 py-8 overflow-y-auto max-w-7xl' data-purpose='swap-feed')
-    header.mb-8
-      h1(class='text-[26px] font-extrabold text-[#0052cc] tracking-tight') Swap Requests
-      p.text-sm.text-slate-500.mt-1 Review incoming requests, track sent requests, or start a new swap.
+    header(class='mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4')
+      div
+        h1(class='text-[26px] font-extrabold text-[#0052cc] tracking-tight') Swap With
+        p.text-sm.text-slate-500.mt-1 Browse peers offering skills, send a swap request, or respond to incoming requests.
+      span(class='inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#EEF2F6] text-xs font-bold text-slate-700')= `Your balance: ${pointsBalance} pts (one-way: ${pointsPerSession} pts)`
 
     section.mb-10.space-y-4
-      h2.text-lg.font-bold.text-slate-900 Incoming &amp; Outgoing Requests
-      each reqItem in swapRequests
+      h2.text-lg.font-bold.text-slate-900 Swap Requests
+      if !swapRequests.length
+        .bg-white.rounded-2xl.p-6.border.border-slate-100.text-sm.text-slate-500 No swap requests yet. Pick a peer below to request a swap.
+      each reqItem in (swapRequests || [])
         article(class='bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4')
           .space-y-1
-            p.text-base.font-bold.text-slate-900= reqItem.partnerName
+            a(class='text-base font-bold text-slate-900 hover:text-[#0052cc]' href=`/users/${reqItem.partnerId}`)= reqItem.partnerName
             p.text-xs.text-slate-500
+              span.capitalize.font-semibold= `${reqItem.direction} • `
               | Wants:
               span.font-semibold.text-slate-700= ` ${reqItem.wantedSkill}`
               |  • Offers:
@@ -21,12 +25,81 @@ block content
           .flex.items-center.gap-3
             span(class='px-3 py-1 rounded-full text-xs font-semibold bg-[#E2EEFE] text-[#1D5494] capitalize')= reqItem.status
             if reqItem.direction === 'incoming' && reqItem.status === 'pending'
-              a(class='px-4 py-2 rounded-full bg-[#0052cc] text-white text-xs font-semibold hover:bg-[#0043a8]' href='#') Accept
-              a(class='px-4 py-2 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100' href='#') Decline
+              form.inline(method='POST' action=`/requests/${reqItem.id}/accept`)
+                input(type='hidden' name='_csrf' value=csrfToken)
+                button(class='px-4 py-2 rounded-full bg-[#0052cc] text-white text-xs font-semibold hover:bg-[#0043a8] cursor-pointer' type='submit') Accept
+              form.inline(method='POST' action=`/requests/${reqItem.id}/decline`)
+                input(type='hidden' name='_csrf' value=csrfToken)
+                button(class='px-4 py-2 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100 cursor-pointer' type='submit') Decline
             else if reqItem.direction === 'outgoing' && reqItem.status === 'pending'
-              a(class='px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200' href='#') Cancel
+              form.inline(method='POST' action=`/requests/${reqItem.id}/cancel`)
+                input(type='hidden' name='_csrf' value=csrfToken)
+                button(class='px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 cursor-pointer' type='submit') Cancel
 
     section.space-y-6
-      h2.text-lg.font-bold.text-slate-900 Swap With
-      each match in swapCandidates
-        +matchCard(match)
+      if !peerOptions.length
+        .bg-white.rounded-2xl.p-6.border.border-slate-100.text-sm.text-slate-500
+          | No active peers are offering skills yet.
+      each peer in (peerOptions || [])
+        article(class='bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]' data-purpose='user-card')
+          .flex.items-center.justify-between.mb-5
+            div(class='flex items-center gap-3.5')
+              if peer.avatarPath
+                img(alt=`${peer.name} avatar` class='w-12 h-12 rounded-full object-cover ring-2 ring-slate-100' src=`/${peer.avatarPath}`)
+              else
+                div(class='w-12 h-12 rounded-full bg-[#E2EEFE] text-[#0052cc] flex items-center justify-center font-bold text-base shrink-0 ring-2 ring-slate-100')= peer.name.charAt(0).toUpperCase()
+              div
+                a(class='font-bold text-slate-900 text-base leading-tight hover:text-[#0052cc]' href=`/users/${peer.id}`)= peer.name
+                p(class='text-xs text-slate-400 font-normal mt-0.5')= peer.bio ? (peer.bio.length > 80 ? `${peer.bio.slice(0, 80)}...` : peer.bio) : 'SkillSwap Member'
+            div(class='flex items-center gap-1 bg-[#EEF2F6] px-2.5 py-1 rounded-md text-xs font-bold text-slate-800')
+              span.text-amber-400.text-xs ★
+              span= peer.rating || 'New'
+
+          div(class='bg-slate-50/70 rounded-xl p-5 mb-5 space-y-3.5')
+            .flex.items-center.flex-wrap.gap-2.text-xs
+              span(class='font-bold text-slate-500 w-20 text-[11px] tracking-wider uppercase') TEACHES:
+              each offered in (peer.offeredSkills || [])
+                span(class='bg-[#D7F5E5] text-[#13613D] px-3.5 py-1.5 rounded-full font-medium')= offered.skillName
+            .flex.items-center.flex-wrap.gap-2.text-xs
+              span(class='font-bold text-slate-500 w-20 text-[11px] tracking-wider uppercase') LEARNS:
+              if peer.wantedSkills && peer.wantedSkills.length
+                each wanted in (peer.wantedSkills || [])
+                  span(class='bg-[#E2EEFE] text-[#1D5494] px-3.5 py-1.5 rounded-full font-medium')= wanted.skillName
+              else
+                span.text-slate-400 None listed yet
+
+          form.space-y-3(method='POST' action='/requests')
+            input(type='hidden' name='_csrf' value=csrfToken)
+            input(type='hidden' name='receiverId' value=peer.id)
+            div(class='grid grid-cols-1 sm:grid-cols-2 gap-3')
+              div
+                label(class='block text-[11px] font-bold uppercase text-slate-500 mb-1' for=`wanted-${peer.id}`) Skill You Want to Learn
+                select(
+                  id=`wanted-${peer.id}`
+                  class='w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800'
+                  name='wantedSkillId'
+                  required
+                )
+                  each offered in (peer.offeredSkills || [])
+                    option(
+                      value=offered.skillId
+                      selected=(String(formData && formData.receiverId) === String(peer.id) && String(formData && formData.wantedSkillId) === String(offered.skillId))
+                    )= `${offered.skillName} (${offered.level})`
+              div
+                label(class='block text-[11px] font-bold uppercase text-slate-500 mb-1' for=`offered-${peer.id}`) Skill You Offer in Return
+                select(
+                  id=`offered-${peer.id}`
+                  class='w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800'
+                  name='offeredSkillId'
+                )
+                  option(value='')= `One-way (${pointsPerSession} pts on completion)`
+                  each mySk in (myOfferedSkills || [])
+                    option(
+                      value=mySk.skillId
+                      selected=(String(formData && formData.receiverId) === String(peer.id) && String(formData && formData.offeredSkillId) === String(mySk.skillId))
+                    )= `${mySk.skillName} (${mySk.level})`
+            button(
+              class='w-full bg-[#0052cc] hover:bg-[#0043a8] active:scale-[0.99] text-white font-semibold py-3.5 rounded-full transition duration-150 shadow-sm text-sm cursor-pointer'
+              data-purpose='schedule-swap-btn'
+              type='submit'
+            ) Request Swap

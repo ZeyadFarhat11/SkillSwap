@@ -7,10 +7,6 @@ const { USER_ROLES } = require('../config/constants');
 
 const router = express.Router();
 
-const idParamSchema = z.object({
-  id: z.coerce.number().int().positive('Invalid ID.'),
-});
-
 const userIdParamSchema = z.object({
   userId: z.coerce.number().int().positive('Invalid user ID.'),
 });
@@ -18,14 +14,7 @@ const userIdParamSchema = z.object({
 router.get('/', pageController.home);
 router.get('/welcome', requireAuth, pageController.welcomePoints);
 router.get('/suggestions', requireAuth, pageController.suggestions);
-router.get('/requests', requireAuth, pageController.requests);
-router.get('/sessions', requireAuth, pageController.sessions);
-router.get(
-  '/sessions/:id/review',
-  requireAuth,
-  validate(idParamSchema, { source: 'params' }),
-  pageController.reviewForm
-);
+// GET /requests, /sessions, /sessions/:id/review moved to requestRoutes.js and sessionRoutes.js (Phase 5)
 router.get('/messages', requireAuth, pageController.messages);
 router.get(
   '/messages/:userId',

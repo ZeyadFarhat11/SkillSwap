@@ -69,92 +69,7 @@ function suggestions(_req, res) {
   });
 }
 
-function requests(_req, res) {
-  return res.render('pages/requests', {
-    title: 'Swap Requests',
-    useSidebar: true,
-    hideFooter: true,
-    activeNav: 'requests',
-    bodyClass: 'bg-[#F4F7FC] text-slate-800 antialiased min-h-screen',
-    swapRequests: [
-      {
-        id: 1,
-        partnerName: 'Salma Mohammed',
-        wantedSkill: 'Python Programming',
-        offeredSkill: 'UI/UX Design',
-        direction: 'incoming',
-        status: 'pending',
-      },
-      {
-        id: 2,
-        partnerName: 'Mohammed Ahmed',
-        wantedSkill: 'Cybersecurity',
-        offeredSkill: null,
-        direction: 'outgoing',
-        status: 'pending',
-      },
-    ],
-    swapCandidates: PLACEHOLDER_MATCHES,
-  });
-}
-
-function sessions(_req, res) {
-  return res.render('pages/sessions', {
-    title: 'Sessions',
-    useSidebar: true,
-    hideFooter: true,
-    activeNav: 'sessions',
-    bodyClass: 'bg-[#F8FAFC] font-sans text-slate-800 antialiased min-h-screen',
-    stats: { upcoming: 2, completed: 1, pending: 1 },
-    sessionsList: [
-      {
-        id: 1,
-        partnerId: 2,
-        partnerName: 'Salma Mohammed',
-        skillTitle: 'Python Programming',
-        category: 'Programming',
-        roleLabel: 'You will learn',
-        month: 'NOV',
-        day: '28',
-        weekday: 'SATURDAY',
-        timeRange: '10:00 - 11:00',
-        status: 'scheduled',
-      },
-      {
-        id: 2,
-        partnerId: 3,
-        partnerName: 'Mohammed Ahmed',
-        skillTitle: 'UI/UX Design',
-        category: 'Design',
-        roleLabel: 'You taught',
-        month: 'NOV',
-        day: '25',
-        weekday: 'WEDNESDAY',
-        timeRange: '16:00 - 17:00',
-        status: 'completed',
-      },
-    ],
-    schedulerSlots: [
-      { label: '10:00', selected: false },
-      { label: '16:00', selected: true },
-      { label: '17:30', selected: false },
-    ],
-  });
-}
-
-function reviewForm(req, res) {
-  return res.render('pages/reviewForm', {
-    title: 'Leave a Review',
-    hideSidebar: true,
-    hideFooter: true,
-    bodyClass: 'bg-[#F4F7FC] min-h-screen text-slate-800 antialiased flex flex-col justify-between',
-    sessionInfo: {
-      id: req.validated.params.id,
-      partnerName: 'Salma Mohammed',
-      skillName: 'Python Programming',
-    },
-  });
-}
+// requests(), sessions(), and reviewForm() moved to requestController.js and sessionController.js (Phase 5)
 
 function messages(_req, res) {
   return res.render('pages/messages', {
@@ -308,9 +223,6 @@ module.exports = {
   home,
   welcomePoints,
   suggestions,
-  requests,
-  sessions,
-  reviewForm,
   messages,
   chat,
   points,

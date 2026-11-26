@@ -2,6 +2,7 @@ const request = require('supertest');
 const bcrypt = require('bcrypt');
 
 const mockUsers = [];
+const mockSessions = [];
 let nextId = 1;
 
 jest.mock('../src/models/prisma', () => ({
@@ -10,6 +11,21 @@ jest.mock('../src/models/prisma', () => ({
       const found = mockUsers.find((u) =>
         where.email !== undefined ? u.email === where.email : u.id === where.id
       );
+      return found ? { ...found } : null;
+    }),
+    findMany: jest.fn(async () => []),
+  },
+  userSkill: {
+    findMany: jest.fn(async () => []),
+  },
+  swapRequest: {
+    findMany: jest.fn(async () => []),
+    count: jest.fn(async () => 0),
+  },
+  session: {
+    findMany: jest.fn(async () => []),
+    findUnique: jest.fn(async ({ where }) => {
+      const found = mockSessions.find((s) => s.id === where.id);
       return found ? { ...found } : null;
     }),
   },
@@ -25,7 +41,7 @@ function extractCsrfToken(html) {
 
 async function seedAndLogin({ name, email, role = 'user' }) {
   const passwordHash = await bcrypt.hash('Password123!', 10);
-  mockUsers.push({
+  const user = {
     id: nextId++,
     name,
     email,
@@ -35,7 +51,8 @@ async function seedAndLogin({ name, email, role = 'user' }) {
     pointsBalance: STARTER_POINTS,
     avatarPath: null,
     createdAt: new Date(),
-  });
+  };
+  mockUsers.push(user);
 
   const agent = request.agent(app);
   const loginPage = await agent.get('/login');
@@ -47,12 +64,13 @@ async function seedAndLogin({ name, email, role = 'user' }) {
   });
   expect(res.statusCode).toBe(302);
   expect(res.headers.location).toBe('/suggestions');
-  return agent;
+  return { agent, user };
 }
 
 describe('Phase 4 Converted Pug pages & route guards', () => {
   beforeEach(() => {
     mockUsers.length = 0;
+    mockSessions.length = 0;
     nextId = 1;
   });
 
@@ -63,14 +81,35 @@ describe('Phase 4 Converted Pug pages & route guards', () => {
     expect(guestRes.text).toContain('Sign Up');
     expect(guestRes.text).toContain('Log In');
 
-    const userAgent = await seedAndLogin({ name: 'Alice Page', email: 'alicep@example.com' });
+    const { agent: userAgent } = await seedAndLogin({
+      name: 'Alice Page',
+      email: 'alicep@example.com',
+    });
     const authedRoot = await userAgent.get('/');
     expect(authedRoot.statusCode).toBe(302);
     expect(authedRoot.headers.location).toBe('/suggestions');
   });
 
-  test('authenticated user can view all user-facing Phase 4 Pug pages', async () => {
-    const agent = await seedAndLogin({ name: 'Alice Page', email: 'alice2@example.com' });
+  test('authenticated user can view all user-facing Pug pages', async () => {
+    const { agent, user } = await seedAndLogin({
+      name: 'Alice Page',
+      email: 'alice2@example.com',
+    });
+
+    mockSessions.push({
+      id: 1,
+      swapRequestId: 1,
+      instructorId: user.id + 1,
+      learnerId: user.id,
+      skillId: 1,
+      dateTime: new Date(),
+      status: 'completed',
+      instructor: { id: user.id + 1, name: 'Salma Mohammed' },
+      learner: user,
+      skill: { id: 1, skillName: 'Python Programming' },
+      ratings: [],
+      swapRequest: null,
+    });
 
     const routes = [
       ['/welcome', 'You Earned Points!'],
@@ -93,7 +132,11 @@ describe('Phase 4 Converted Pug pages & route guards', () => {
   });
 
   test('admin routes block non-admins with 403 and render for admins', async () => {
-    const userAgent = await seedAndLogin({ name: 'Regular User', email: 'reg@example.com', role: 'user' });
+    const { agent: userAgent } = await seedAndLogin({
+      name: 'Regular User',
+      email: 'reg@example.com',
+      role: 'user',
+    });
     for (const adminPath of ['/admin/users', '/admin/skills', '/admin/reports']) {
       const unauth = await request(app).get(adminPath);
       expect(unauth.statusCode).toBe(302);
@@ -103,7 +146,11 @@ describe('Phase 4 Converted Pug pages & route guards', () => {
       expect(forbidden.statusCode).toBe(403);
     }
 
-    const adminAgent = await seedAndLogin({ name: 'Admin User', email: 'adm@example.com', role: 'admin' });
+    const { agent: adminAgent } = await seedAndLogin({
+      name: 'Admin User',
+      email: 'adm@example.com',
+      role: 'admin',
+    });
     const usersRes = await adminAgent.get('/admin/users');
     expect(usersRes.statusCode).toBe(200);
     expect(usersRes.text).toContain('User Management');

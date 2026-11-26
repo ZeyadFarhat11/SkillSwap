@@ -16,6 +16,41 @@ async function findById(id) {
 }
 
 /**
+ * List active users (other than excludeUserId) who offer at least one approved skill.
+ */
+async function findActivePeersWithOfferedSkills(excludeUserId) {
+  return prisma.user.findMany({
+    where: {
+      id: { not: excludeUserId },
+      status: USER_STATUSES.ACTIVE,
+      userSkills: {
+        some: {
+          type: 'offer',
+          skill: { status: SKILL_STATUSES.APPROVED },
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      bio: true,
+      avatarPath: true,
+      userSkills: {
+        where: {
+          skill: { status: SKILL_STATUSES.APPROVED },
+        },
+        include: { skill: true },
+        orderBy: { id: 'asc' },
+      },
+      receivedRatings: {
+        select: { stars: true },
+      },
+    },
+    orderBy: { name: 'asc' },
+  });
+}
+
+/**
  * Find a user profile with project links, approved user skills, and availability.
  */
 async function findProfileById(id) {
@@ -106,6 +141,7 @@ module.exports = {
   findByEmail,
   findById,
   findProfileById,
+  findActivePeersWithOfferedSkills,
   updateProfileAndLinks,
   updateAvatarPath,
   createUserWithStarterPoints,

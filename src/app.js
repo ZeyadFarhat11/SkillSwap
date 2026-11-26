@@ -13,6 +13,8 @@ const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const skillRoutes = require('./routes/skillRoutes');
 const availabilityRoutes = require('./routes/availabilityRoutes');
+const requestRoutes = require('./routes/requestRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
 const pageRoutes = require('./routes/pageRoutes');
 
 const app = express();
@@ -69,6 +71,8 @@ app.use(authRoutes);
 app.use(profileRoutes);
 app.use(skillRoutes);
 app.use(availabilityRoutes);
+app.use(requestRoutes);
+app.use(sessionRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

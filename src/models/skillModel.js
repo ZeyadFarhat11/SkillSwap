@@ -49,6 +49,21 @@ async function findUserSkillById(id) {
 }
 
 /**
+ * Find an approved user_skill entry for a user, skill, and type (offer or want).
+ */
+async function findApprovedUserSkill(userId, skillId, type) {
+  return prisma.userSkill.findFirst({
+    where: {
+      userId,
+      skillId,
+      type,
+      skill: { status: SKILL_STATUSES.APPROVED },
+    },
+    include: { skill: true },
+  });
+}
+
+/**
  * Create a user_skill entry.
  */
 async function createUserSkill({ userId, skillId, type, level }) {
@@ -71,6 +86,7 @@ module.exports = {
   listUserSkills,
   findUserSkillsForSkill,
   findUserSkillById,
+  findApprovedUserSkill,
   createUserSkill,
   deleteUserSkill,
 };

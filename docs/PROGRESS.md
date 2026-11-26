@@ -46,6 +46,18 @@
     - Added `tests/pages.test.js`, extended `tests/profile.test.js` (WebP/JPEG + combined `POST /profile/edit` avatar save), and updated `tests/auth.test.js` for `/welcome` and `/suggestions` redirects.
     - All 21 Pug templates compile cleanly; `npm run lint` passes (0 errors/warnings); `npx jest --runInBand --detectOpenHandles` passes (5/5 suites, 26/26 tests).
 
+- **Phase 5 (Swap requests, sessions, and transactional points transfer)** — implemented and tested:
+  - Models & validators:
+    - Added `src/models/swapRequestModel.js` (`create`, `findById`, `findDuplicatePending`, `findByUserId`, `findAcceptedByUserId`, `countPendingForUser`, `updateStatus`) and `src/models/sessionModel.js` (`createBatch`, `findById`, `findByUserId`, `findActiveBySwapRequestId`, `updateStatus`, and `completeSessionTx` running inside one `prisma.$transaction` with `FOR UPDATE` row locks on session and both users).
+    - Updated `src/models/userModel.js` (`findActivePeersWithOfferedSkills`) and `src/models/skillModel.js` (`findApprovedUserSkill`).
+    - Added `src/validators/requestValidator.js` (`createRequestSchema`, `requestIdParamSchema`) and `src/validators/sessionValidator.js` (`createSessionSchema` with naive `datetime-local` UTC normalization, `sessionIdParamSchema`).
+  - Services, controllers, routes, & views:
+    - Added `src/services/requestService.js` (no self-requests, active receiver check, approved offered skill checks, no duplicate pending requests, one-way `POINTS_PER_SESSION` balance check, participant/pending status guards) and `src/services/sessionService.js` (shared availability validation across both users, 1 session for one-way / 2 for mutual, duplicate-scheduling prevention, cancel, completion after `dateTime` with atomic one-way points transfer & parent request completion).
+    - Added `src/controllers/{requestController,sessionController}.js`, `src/routes/{requestRoutes,sessionRoutes}.js`, mounted in `src/app.js`, and removed Phase 4 placeholders from `src/controllers/pageController.js` and `src/routes/pageRoutes.js`.
+    - Wired real POST forms + CSRF tokens into `src/views/pages/requests.pug` ("Swap With" user cards matching `frontend-original/swap/swap.html` showing each active peer's offered/wanted skills + inline `Request Swap` form, alongside `Accept`/`Decline`/`Cancel`) and `src/views/pages/sessions.pug` (`Schedule Session`, `Complete`, `Cancel`), and rebuilt `public/css/app.css`.
+  - Tests & checks:
+    - Added `tests/requests.test.js` and updated `tests/pages.test.js` Prisma mocks for `/requests`, `/sessions`, and `/sessions/:id/review`.
+
 ## Decisions
 
 Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
@@ -75,6 +87,7 @@ Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
 17. **Prisma `Time` formatting & adjacent availability (`src/utils/time.js`, `src/services/availabilityService.js`)**: `formatPrismaTime` reads UTC hours/minutes (`getUTCHours`/`getUTCMinutes`) to avoid local timezone offset shifts, and overlap checking uses half-open intervals (`newStart < existingEnd && existingStart < newEnd`) so adjacent back-to-back slots are allowed.
 18. **Sidebar-only app layout & omitted navbar (`src/views/layouts/base.pug`, `src/views/partials/{sidebar,adminSidebar}.pug`, `src/views/pages/*.pug`)**: Omitted the top `navbar.pug` completely so all authenticated app pages (including Phases 3 and 4 pages) consistently use the left `sidebar` / `adminSidebar` layout (`!hideSidebar && (useSidebar || currentUser)`), while guest/onboarding/standalone views (`welcome`, `welcomePoints`, `login`, `register`, `reviewForm`) pass `hideSidebar: true`. Replaced external `lh3.googleusercontent.com` mock URLs with initials badges (respecting Helmet `imgSrc: ["'self'", 'data:']`), and replaced FontAwesome CDN icons with inline SVGs.
 19. **Starter points welcome screen (`src/views/pages/welcomePoints.pug`)**: `frontend-original/begin/get3points.html` displays `+3 POINTS`; `welcomePoints.pug` renders `STARTER_POINTS` dynamically (`+20` by default, or `+3` if `STARTER_POINTS=3` is configured in `.env`).
+20. **Swap scheduling, duplicate guards, and UTC wall-clock normalization (`src/validators/sessionValidator.js`, `src/services/sessionService.js`, `src/models/sessionModel.js`)**: Normalized naive HTML `<input type="datetime-local">` strings (`YYYY-MM-DDTHH:mm`) as UTC to match Phase 3 `availability.startTime`/`endTime` UTC wall-clock storage, prevented duplicate active session scheduling on an already-scheduled accepted swap request (allowing reschedule only after cancellation), ordered user `FOR UPDATE` row locks by ascending ID to avoid deadlocks, and marked a parent `swap_request` `completed` when it has at least one `completed` session and no remaining `scheduled` sessions.
 
 ## Deferred pages
 
@@ -103,5 +116,5 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 
 ## Next
 
-- Review Phase 4 on branch `phase-4-remaining-pages` (and commit/merge when ready).
-- Begin **Phase 5**: Swap requests (`POST /requests`, `/accept`, `/decline`, `/cancel`) and Sessions (`POST /sessions` with shared availability validation, `/complete` with transactional one-way points transfer & row locking, `/cancel`).
+- Review Phase 5 on `main` (and commit when ready).
+- Begin **Phase 6**: Ratings (`POST /sessions/:id/rating` + received reviews on profiles), Messages (`GET /messages`, `GET /messages/:userId`, `POST /messages` with rate limit), Reports (`POST /reports`), and Points history page (`GET /points`).
