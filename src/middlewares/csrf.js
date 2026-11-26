@@ -3,20 +3,23 @@ const env = require('../config/env');
 
 const isProd = env.NODE_ENV === 'production';
 
-const { generateToken, doubleCsrfProtection } = doubleCsrf({
-  getSecret: () => env.SESSION_SECRET,
-  getSessionIdentifier: (req) => String(req.session?.user?.id || 'guest'),
-  cookieName: isProd ? '__Host-skillswap.x-csrf-token' : 'skillswap.x-csrf-token',
-  cookieOptions: {
-    sameSite: 'lax',
-    path: '/',
-    secure: isProd,
-    httpOnly: true,
-  },
-  size: 64,
-  ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
-  getTokenFromRequest: (req) => req.body?._csrf || req.headers['x-csrf-token'],
-});
+const { generateToken, validateRequest, invalidCsrfTokenError, doubleCsrfProtection } =
+  doubleCsrf({
+    getSecret: () => env.SESSION_SECRET,
+    getSessionIdentifier: (req) => String(req.session?.user?.id || 'guest'),
+    cookieName: isProd ? '__Host-skillswap.x-csrf-token' : 'skillswap.x-csrf-token',
+    cookieOptions: {
+      sameSite: 'lax',
+      path: '/',
+      secure: isProd,
+      httpOnly: true,
+    },
+    size: 64,
+    ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
+    getTokenFromRequest: (req) => req.body?._csrf || req.headers['x-csrf-token'],
+    // Multipart forms cannot be parsed before multer; /profile/avatar runs validateRequest right after multer.
+    skipCsrfProtection: (req) => req.method === 'POST' && req.path === '/profile/avatar',
+  });
 
 /**
  * Expose a valid CSRF token to Pug templates without throwing if an older
@@ -38,6 +41,8 @@ function rotateCsrfToken(req, res) {
 
 module.exports = {
   csrfProtection: doubleCsrfProtection,
+  validateCsrfRequest: validateRequest,
+  invalidCsrfTokenError,
   attachCsrfToken,
   rotateCsrfToken,
 };

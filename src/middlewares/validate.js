@@ -52,6 +52,11 @@ function validate(schema, options = {}) {
 
     const fieldErrors = mapZodFieldErrors(result.error.issues);
     const firstMessage = result.error.issues[0]?.message || 'Please check your input.';
+    const formData = extractSafeFormData(req.body);
+
+    if (typeof options.onError === 'function') {
+      return options.onError(req, res, next, { firstMessage, fieldErrors, formData });
+    }
 
     if (options.view) {
       return res.status(400).render(options.view, {
@@ -60,7 +65,7 @@ function validate(schema, options = {}) {
         hideFooter: Boolean(options.hideFooter),
         bodyClass: options.bodyClass,
         errors: fieldErrors,
-        formData: extractSafeFormData(req.body),
+        formData,
         flash: {
           error: [firstMessage],
           success: [],

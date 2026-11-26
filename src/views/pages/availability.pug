@@ -1,0 +1,58 @@
+extends ../layouts/base
+
+block content
+  main(class='max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 flex-1 space-y-8')
+    header.flex.items-center.justify-between
+      .space-y-1
+        h1(class='text-2xl font-bold text-[#0b57cf] tracking-tight') Weekly Availability
+        p.text-sm.text-slate-500 Set the recurring time slots when you are available for sessions.
+      a(class='text-sm font-semibold text-[#0b57cf] hover:underline' href='/profile') Back to Profile
+
+    section.bg-white.rounded-2xl.p-6.border.border-slate-100.shadow-sm.space-y-4
+      h2.text-base.font-bold.text-slate-900 Add Availability Slot
+      form(class='grid grid-cols-1 sm:grid-cols-4 gap-4 items-end' method='POST' action='/availability' novalidate)
+        input(type='hidden' name='_csrf' value=csrfToken)
+
+        div
+          label(class='block text-xs font-bold uppercase text-slate-500 mb-1.5' for='dayOfWeek') Day
+          select#dayOfWeek(class='w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-800 focus:border-[#0b57cf] focus:ring-2 focus:ring-blue-100 outline-none' name='dayOfWeek' required)
+            each dayName, index in dayNames
+              option(value=index selected=(formData && String(formData.dayOfWeek) === String(index)))= dayName
+
+        div
+          label(class='block text-xs font-bold uppercase text-slate-500 mb-1.5' for='startTime') Start (HH:mm)
+          input#startTime(
+            class=`w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-800 focus:border-[#0b57cf] focus:ring-2 focus:ring-blue-100 outline-none ${errors && errors.startTime ? 'input-error' : ''}`
+            type='time'
+            name='startTime'
+            value=(formData && formData.startTime) || ''
+            required
+          )
+
+        div
+          label(class='block text-xs font-bold uppercase text-slate-500 mb-1.5' for='endTime') End (HH:mm)
+          input#endTime(
+            class=`w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-800 focus:border-[#0b57cf] focus:ring-2 focus:ring-blue-100 outline-none ${errors && errors.endTime ? 'input-error' : ''}`
+            type='time'
+            name='endTime'
+            value=(formData && formData.endTime) || ''
+            required
+          )
+
+        div
+          button(class='w-full bg-[#0b57cf] hover:bg-[#0949af] text-white font-semibold text-sm py-2.5 px-5 rounded-full transition-colors' type='submit') Add Slot
+
+    section.bg-white.rounded-2xl.p-6.border.border-slate-100.shadow-sm.space-y-4
+      h2.text-base.font-bold.text-slate-900 Your Scheduled Slots
+      if slots.length
+        .space-y-3
+          each slot in slots
+            div(class='flex items-center justify-between rounded-xl border border-slate-200 bg-[#f7f9fd] px-4 py-3')
+              .flex.items-center.gap-4
+                span.text-sm.font-bold.text-slate-900= slot.dayName
+                span(class='text-sm font-semibold text-[#0b57cf]')= `${slot.startTime} - ${slot.endTime}`
+              form(method='POST' action=`/availability/${slot.id}/delete`)
+                input(type='hidden' name='_csrf' value=csrfToken)
+                button(class='text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline' type='submit') Delete
+      else
+        p.text-sm.text-slate-400 You have not added any availability slots yet.

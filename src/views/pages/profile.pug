@@ -1,0 +1,99 @@
+extends ../layouts/base
+
+block content
+  main(class='flex-1 py-10 px-4 sm:px-6 bg-[#f8fafc]' data-purpose='profile-view')
+    div(class='max-w-[1080px] mx-auto space-y-8')
+      section(class='flex flex-col items-center justify-center text-center mt-2' data-purpose='user-header')
+        .relative.mb-4
+          if profile.avatarPath
+            img#profile-avatar(
+              alt=`${profile.name} Avatar`
+              class='w-28 h-28 rounded-full object-cover shadow-[0_4px_16px_rgba(0,0,0,0.06)] border-2 border-white ring-1 ring-slate-100'
+              src=`/${profile.avatarPath}`
+            )
+          else
+            div(class='w-28 h-28 rounded-full bg-[#e9f0fc] text-[#0857c3] flex items-center justify-center text-3xl font-extrabold shadow-sm border-2 border-white ring-1 ring-slate-100')
+              = profile.name ? profile.name.charAt(0).toUpperCase() : 'U'
+
+        h1#profile-name(class='text-[26px] font-bold text-[#0d3880] tracking-tight mb-1')= profile.name
+        if profile.bio
+          p(class='text-slate-600 text-[14.5px] max-w-xl leading-relaxed mt-1')= profile.bio
+        else
+          p(class='text-slate-400 text-sm italic mt-1') No bio added yet.
+
+        if isOwnProfile
+          .flex.flex-wrap.items-center.justify-center.gap-3.mt-5
+            a(class='px-5 py-2.5 rounded-full bg-[#0057C2] hover:bg-[#004bb0] text-white text-sm font-semibold shadow-sm transition-colors' href='/profile/edit') Edit Profile
+            a(class='px-5 py-2.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors' href='/skills') Manage Skills
+            a(class='px-5 py-2.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors' href='/availability') Manage Availability
+
+      if isOwnProfile
+        section(class='grid grid-cols-1 sm:grid-cols-3 gap-5' data-purpose='stat-metrics')
+          div(class='bg-[#e9f0fc] rounded-2xl py-4 flex flex-col items-center justify-center shadow-sm')
+            span(class='text-2xl font-bold text-[#0857c3] leading-none mb-1')= profile.pointsBalance
+            span(class='text-xs text-slate-500 font-medium') Points
+          div(class='bg-[#e9f0fc] rounded-2xl py-4 flex flex-col items-center justify-center shadow-sm')
+            span(class='text-2xl font-bold text-[#0857c3] leading-none mb-1')= profile.offerSkills.length
+            span(class='text-xs text-slate-500 font-medium') Skills Offered
+          div(class='bg-[#e9f0fc] rounded-2xl py-4 flex flex-col items-center justify-center shadow-sm')
+            span(class='text-2xl font-bold text-[#0857c3] leading-none mb-1')= profile.wantSkills.length
+            span(class='text-xs text-slate-500 font-medium') Skills Wanted
+
+      div(class='grid grid-cols-1 md:grid-cols-2 gap-6')
+        section(class='bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4' data-purpose='offer-skills-list')
+          .flex.items-center.justify-between
+            h2(class='text-base font-bold text-slate-900') Skills Offered
+            if isOwnProfile
+              a(class='text-xs font-semibold text-[#0857c3] hover:underline' href='/skills') Edit
+          if profile.offerSkills.length
+            div(class='flex flex-wrap gap-2.5')
+              each item in profile.offerSkills
+                span(class='px-4 py-1.5 rounded-full bg-[#D6F5E3] text-[#1E7E52] text-xs font-semibold tracking-wide inline-flex items-center gap-1.5')
+                  span= item.skillName
+                  span(class='opacity-75 font-medium')= `(${item.level})`
+          else
+            p.text-sm.text-slate-400 No offered skills listed yet.
+
+        section(class='bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4' data-purpose='want-skills-list')
+          .flex.items-center.justify-between
+            h2(class='text-base font-bold text-slate-900') Skills Wanted
+            if isOwnProfile
+              a(class='text-xs font-semibold text-[#0857c3] hover:underline' href='/skills') Edit
+          if profile.wantSkills.length
+            div(class='flex flex-wrap gap-2.5')
+              each item in profile.wantSkills
+                span(class='px-4 py-1.5 rounded-full bg-[#E1EDFF] text-[#185BCE] text-xs font-semibold tracking-wide inline-flex items-center gap-1.5')
+                  span= item.skillName
+                  span(class='opacity-75 font-medium')= `(${item.level})`
+          else
+            p.text-sm.text-slate-400 No wanted skills listed yet.
+
+      section(class='space-y-4' data-purpose='projects-section')
+        .flex.items-center.justify-between
+          h2(class='text-[19px] font-bold text-slate-900') Project Links
+          if isOwnProfile
+            a(class='text-xs font-semibold text-[#0857c3] hover:underline' href='/profile/edit') Edit links
+        if profile.projectLinks.length
+          div(class='grid grid-cols-1 md:grid-cols-2 gap-5')
+            each link in profile.projectLinks
+              article(class='bg-white rounded-2xl p-5 border border-slate-100 flex items-center gap-4 shadow-sm' data-purpose='project-card')
+                div(class='w-12 h-12 rounded-xl bg-[#e3effd] text-[#0857c3] flex items-center justify-center font-bold text-base shrink-0') &lt;/&gt;
+                .flex-1.min-w-0
+                  p.text-xs.text-slate-400.font-medium.mb-1 Portfolio Link
+                  a(class='text-sm font-semibold text-[#0857c3] hover:underline break-all' href=link.url target='_blank' rel='noopener noreferrer')= link.url
+        else
+          div(class='bg-white rounded-2xl p-6 border border-slate-100 text-sm text-slate-400 shadow-sm') No project links added yet.
+
+      section(class='bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4' data-purpose='availability-section')
+        .flex.items-center.justify-between
+          h2(class='text-[19px] font-bold text-slate-900') Availability
+          if isOwnProfile
+            a(class='text-xs font-semibold text-[#0857c3] hover:underline' href='/availability') Manage slots
+        if profile.availability.length
+          div(class='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3')
+            each slot in profile.availability
+              div(class='rounded-xl border border-slate-200 bg-[#f8fafc] px-4 py-3 flex items-center justify-between')
+                span.text-sm.font-semibold.text-slate-800= slot.dayName
+                span(class='text-xs font-bold text-[#0857c3]')= `${slot.startTime} - ${slot.endTime}`
+        else
+          p.text-sm.text-slate-400 No availability slots configured yet.

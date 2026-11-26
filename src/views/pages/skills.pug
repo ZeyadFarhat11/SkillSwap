@@ -1,0 +1,65 @@
+extends ../layouts/base
+
+block content
+  main(class='max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-8 flex-1')
+    .space-y-8
+      header.space-y-3
+        .flex.items-center.gap-3
+          a(class='p-1 -ml-1 text-gray-800 hover:text-gray-600 transition-colors' href='/profile' aria-label='Back to profile')
+            svg(class='w-6 h-6 stroke-[2.5]' fill='none' stroke='currentColor' viewBox='0 0 24 24')
+              path(d='M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18' stroke-linecap='round' stroke-linejoin='round')
+          h1(class='text-2xl sm:text-[26px] font-bold tracking-tight text-gray-900') Skills Setup
+        p(class='text-[15px] text-gray-500 font-normal leading-relaxed')
+          | Select approved skills you can teach and skills you want to learn. A skill cannot be listed as both.
+
+      section.bg-white.rounded-2xl.p-6.border.border-slate-100.shadow-sm.space-y-4(data-purpose='skills-teach-container')
+        h2(class='text-[17px] font-bold text-gray-900 tracking-tight') Skills I can teach
+        form(class='grid grid-cols-1 sm:grid-cols-4 gap-3' method='POST' action='/skills/mine')
+          input(type='hidden' name='_csrf' value=csrfToken)
+          input(type='hidden' name='type' value='offer')
+          select(class='sm:col-span-2 bg-[#f4f7fb] text-gray-800 text-sm rounded-xl py-3 px-4 border border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none' name='skillId' required)
+            option(value='') Choose an approved skill...
+            each skill in approvedSkills
+              option(value=skill.id selected=(formData && String(formData.skillId) === String(skill.id) && formData.type === 'offer'))= skill.skillName
+          select(class='bg-[#f4f7fb] text-gray-800 text-sm rounded-xl py-3 px-4 border border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none' name='level' required)
+            option(value='beginner' selected=(formData && formData.level === 'beginner')) Beginner
+            option(value='intermediate' selected=(formData && formData.level === 'intermediate')) Intermediate
+            option(value='advanced' selected=(formData && formData.level === 'advanced')) Advanced
+          button(class='bg-[#005bb5] hover:bg-[#004f9e] text-white font-semibold text-sm py-3 px-5 rounded-full transition-colors' type='submit') Add Offer Skill
+
+        div(class='flex flex-wrap gap-2.5 pt-2' data-purpose='teach-selected-cloud')
+          if offerSkills.length
+            each item in (offerSkills)
+              form.inline-flex(method='POST' action=`/skills/mine/${item.id}/delete`)
+                input(type='hidden' name='_csrf' value=csrfToken)
+                span(class='inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[13px] font-medium bg-[#ccfbf1] text-[#115e59]')
+                  span= `${item.skill.skillName} (${item.level})`
+                  button(class='text-[#0d9488] hover:text-[#115e59] font-bold text-xs' type='submit' aria-label=`Remove ${item.skill.skillName}`) ✕
+          else
+            p.text-sm.text-slate-400 No teaching skills added yet.
+
+      section.bg-white.rounded-2xl.p-6.border.border-slate-100.shadow-sm.space-y-4(data-purpose='skills-learn-container')
+        h2(class='text-[17px] font-bold text-gray-900 tracking-tight') Skills I want to learn
+        form(class='grid grid-cols-1 sm:grid-cols-4 gap-3' method='POST' action='/skills/mine')
+          input(type='hidden' name='_csrf' value=csrfToken)
+          input(type='hidden' name='type' value='want')
+          select(class='sm:col-span-2 bg-[#f4f7fb] text-gray-800 text-sm rounded-xl py-3 px-4 border border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none' name='skillId' required)
+            option(value='') Choose an approved skill...
+            each skill in approvedSkills
+              option(value=skill.id selected=(formData && String(formData.skillId) === String(skill.id) && formData.type === 'want'))= skill.skillName
+          select(class='bg-[#f4f7fb] text-gray-800 text-sm rounded-xl py-3 px-4 border border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none' name='level' required)
+            option(value='beginner' selected=(formData && formData.level === 'beginner')) Beginner
+            option(value='intermediate' selected=(formData && formData.level === 'intermediate')) Intermediate
+            option(value='advanced' selected=(formData && formData.level === 'advanced')) Advanced
+          button(class='bg-[#005bb5] hover:bg-[#004f9e] text-white font-semibold text-sm py-3 px-5 rounded-full transition-colors' type='submit') Add Want Skill
+
+        div(class='flex flex-wrap gap-2.5 pt-2' data-purpose='learn-selected-cloud')
+          if wantSkills.length
+            each item in wantSkills
+              form.inline-flex(method='POST' action=`/skills/mine/${item.id}/delete`)
+                input(type='hidden' name='_csrf' value=csrfToken)
+                span(class='inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[13px] font-medium bg-[#e0f2fe] text-[#0369a1]')
+                  span= `${item.skill.skillName} (${item.level})`
+                  button(class='text-[#0284c7] hover:text-[#0369a1] font-bold text-xs' type='submit' aria-label=`Remove ${item.skill.skillName}`) ✕
+          else
+            p.text-sm.text-slate-400 No learning skills added yet.

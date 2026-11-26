@@ -10,6 +10,9 @@ const { createSessionMiddleware } = require('./config/session');
 const { csrfProtection, attachCsrfToken } = require('./middlewares/csrf');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/authRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const skillRoutes = require('./routes/skillRoutes');
+const availabilityRoutes = require('./routes/availabilityRoutes');
 
 const app = express();
 
@@ -65,6 +68,9 @@ app.get('/', (_req, res) => {
 });
 
 app.use(authRoutes);
+app.use(profileRoutes);
+app.use(skillRoutes);
+app.use(availabilityRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
