@@ -1,0 +1,212 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SkillSwap - Mohammed Ahmed Profile</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#0b57d0',
+              darkBlue: '#0a3f82',
+              statBg: '#edf4fe',
+              badgeBg: '#dcfce7',
+              badgeText: '#065f46',
+              btnDangerBg: '#fee2e2',
+              btnDangerText: '#dc2626',
+              btnSecondaryBg: '#edf4fe',
+              btnSecondaryText: '#1e40af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Style Tag for Layout & Appearance -->
+<style data-purpose="custom-styling">
+    body {
+      background-color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .sidebar-w {
+      width: 240px;
+    }
+    .profile-container-w {
+      max-width: 820px;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex overflow-x-hidden antialiased">
+<!-- BEGIN: LeftSidebar -->
+<aside class="sidebar-w bg-white min-h-screen border-r border-slate-100 flex flex-col justify-between py-8 px-6 shrink-0 shadow-sm z-10" data-purpose="main-sidebar">
+<!-- Top Section: Brand & Navigation -->
+<div>
+<!-- Brand Logo -->
+<div class="mb-10 pl-1">
+<h1 class="text-xl font-black tracking-normal text-[#0b57d0]">SKILLSWAP</h1>
+</div>
+<!-- Navigation Section -->
+<div>
+<p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-5 pl-1">OVERVIEW</p>
+<nav class="space-y-4">
+<!-- Home (Active) -->
+<a class="flex items-center gap-3 text-sm font-medium text-[#0b57d0] hover:opacity-80 transition-opacity" href="../../userdash.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Home</span>
+</a>
+<!-- Search -->
+<a class="flex items-center gap-3 text-sm font-normal text-slate-600 hover:text-slate-900 transition-colors" href="../../search/search1.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<circle cx="11" cy="11" r="8"></circle>
+<line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+</svg>
+<span>Search</span>
+</a>
+<!-- Swap -->
+<a class="flex items-center gap-3 text-sm font-normal text-slate-600 hover:text-slate-900 transition-colors" href="../../swap/swap.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Swap</span>
+</a>
+<!-- Chat -->
+<a class="flex items-center gap-3 text-sm font-normal text-slate-600 hover:text-slate-900 transition-colors" href="../../chat/chathis.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<line x1="22" x2="11" y1="2" y2="13"></line>
+<polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+</svg>
+<span>Chat</span>
+</a>
+<!-- Session -->
+<a class="flex items-center gap-3 text-sm font-normal text-slate-600 hover:text-slate-900 transition-colors" href="../../session/session.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<circle cx="12" cy="13" r="8"></circle>
+<path d="M12 9v4l2 2m-2-11V2m-5 2L5 6m14-2l-2 2" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Session</span>
+</a>
+<!-- Points Wallet -->
+<a class="flex items-center gap-3 text-sm font-normal text-slate-600 hover:text-slate-900 transition-colors" href="../../points/points.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<rect height="14" rx="2" width="20" x="2" y="5"></rect>
+<line x1="2" x2="22" y1="10" y2="10"></line>
+</svg>
+<span>Points Wallet</span>
+</a>
+<!-- Coins Wallet -->
+<a class="flex items-center gap-3 text-sm font-normal text-slate-600 hover:text-slate-900 transition-colors" href="../../coins/coins.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<rect height="12" rx="2" width="20" x="2" y="6"></rect>
+<circle cx="12" cy="12" r="2"></circle>
+<path d="M6 12h.01M18 12h.01" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Coins Wallet</span>
+</a>
+<!-- Notifications -->
+<a class="flex items-center gap-3 text-sm font-normal text-slate-600 hover:text-slate-900 transition-colors" href="../../notification/notification.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Notifications</span>
+</a>
+<!-- Profile -->
+<a class="flex items-center gap-3 text-sm font-normal text-slate-600 hover:text-slate-900 transition-colors" href="../../progress.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round"></path>
+<circle cx="12" cy="7" r="4"></circle>
+</svg>
+<span>Profile</span>
+</a>
+</nav>
+</div>
+</div>
+<!-- Bottom Section: Settings & Logout -->
+<div class="pt-6">
+<p class="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-5 pl-1">SETTINGS</p>
+<a class="flex items-center gap-3 text-sm font-medium text-red-500 hover:text-red-600 transition-colors pl-1" href="../../begin/login.html">
+<svg class="w-4 h-4 stroke-current stroke-2 fill-none" viewBox="0 0 24 24">
+<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- END: LeftSidebar -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 flex flex-col items-center pt-20 px-8" data-purpose="user-profile-view">
+<div class="w-full profile-container-w flex flex-col items-center">
+<!-- User Avatar Profile Picture -->
+<div class="relative w-28 h-28 rounded-full overflow-hidden shadow-inner flex items-center justify-center bg-slate-100">
+<img alt="Mohammed Ahmed" class="w-full h-full object-cover object-top" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3w6lW49_LVB15zYkyYDYiVk0SljCKherkHqRsbweeJvkBtqopzeeFFcvQZKQpIGQMk4QYqtmpgxbom5DqBfufD6Rd7mRPYNJGYGMQXsOXAR1A6jq35s6XHZJzHxfbEs7G-PYByIpWmzvZCcvv8SRA8DRNzJJmY2tyEzTMSxiAbztdeKq-CijEZdD3WV1hXGy2EfjuSD4mbwYrKD3UgqGslMbTY_L0B2cARaAVxoOW4f6LDysZCDc3Fg">
+</div>
+<!-- User Name & Profession -->
+<h2 class="text-2xl font-bold text-[#0a3f82] mt-4 tracking-tight">Mohammed Ahmed</h2>
+<p class="text-xs text-slate-500 font-medium mt-1">IT Engineer</p>
+<!-- Rating Row -->
+<div class="flex items-center gap-1.5 mt-2">
+<div class="flex text-amber-500 text-sm">
+<span>★</span>
+<span>★</span>
+<span>★</span>
+<span>★</span>
+<span class="text-amber-500">★</span>
+</div>
+<span class="text-xs font-bold text-slate-800 ml-0.5">4.6</span>
+</div>
+<!-- Stats Cards -->
+<div class="w-full grid grid-cols-3 gap-3.5 mt-6">
+<!-- Card 1: Taught -->
+<div class="bg-[#edf4fe] rounded-2xl py-3 px-4 flex flex-col items-center justify-center">
+<span class="text-xl font-bold text-[#0b57d0]">28</span>
+<span class="text-[11px] text-slate-500 font-normal mt-0.5">Taught</span>
+</div>
+<!-- Card 2: Learned -->
+<div class="bg-[#edf4fe] rounded-2xl py-3 px-4 flex flex-col items-center justify-center">
+<span class="text-xl font-bold text-[#0b57d0]">6</span>
+<span class="text-[11px] text-slate-500 font-normal mt-0.5">Learned</span>
+</div>
+<!-- Card 3: Points -->
+<div class="bg-[#edf4fe] rounded-2xl py-3 px-4 flex flex-col items-center justify-center">
+<span class="text-xl font-bold text-[#0b57d0]">72</span>
+<span class="text-[11px] text-slate-500 font-normal mt-0.5">Points</span>
+</div>
+</div>
+<!-- Skill Badges -->
+<div class="w-full flex items-center justify-start gap-2 mt-6">
+<span class="bg-[#dcfce7] text-[#065f46] text-xs font-semibold px-3 py-1.5 rounded-full">
+          Cybersecurity
+        </span>
+<span class="bg-[#dcfce7] text-[#065f46] text-xs font-semibold px-3 py-1.5 rounded-full">
+          Fitness Training
+        </span>
+<span class="bg-[#dcfce7] text-[#065f46] text-xs font-semibold px-3 py-1.5 rounded-full">
+          French
+        </span>
+</div>
+<!-- Primary Action: Message Button -->
+<div class="w-full mt-6">
+<button class="w-full bg-[#0b57d0] hover:bg-[#0948ab] text-white text-sm font-semibold py-3.5 rounded-full shadow-sm transition-colors text-center" type="button" onclick="location.href='../../user2/chat2.html'">
+          Message Mohammed
+        </button>
+</div>
+<!-- Secondary Action Buttons -->
+<div class="w-full grid grid-cols-2 gap-3.5 mt-3.5">
+<button class="w-full bg-[#fee2e2] hover:bg-[#fcd0d0] text-[#dc2626] text-sm font-semibold py-3.5 rounded-full transition-colors text-center" type="button" onclick="location.href='../../user2/report2.html'">
+          Report User
+        </button>
+<button class="w-full bg-[#edf4fe] hover:bg-[#dfeafb] text-[#1e40af] text-sm font-semibold py-3.5 rounded-full transition-colors text-center" type="button" onclick="location.href='../../user2/leaverev2.html'">
+          Leave a Review
+        </button>
+</div>
+</div>
+</main>
+<!-- END: MainContent -->
+
+
+</body></html>

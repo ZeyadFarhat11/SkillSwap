@@ -1,0 +1,401 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SkillSwap - Session Management</title>
+<!-- Tailwind CSS CDN with forms and container-queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#0062d2',
+              600: '#0052b4',
+              700: '#004396'
+            },
+            status: {
+              completed: {
+                bg: '#e8f8f0',
+                text: '#12b76a'
+              },
+              progress: {
+                bg: '#e8f2ff',
+                text: '#2f80ed'
+              },
+              upcoming: {
+                bg: '#fef7e6',
+                text: '#f59e0b'
+              },
+              cancelled: {
+                bg: '#fdeeed',
+                text: '#f04438'
+              },
+              reported: {
+                bg: '#fff7ed',
+                text: '#f97316'
+              }
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styling for subtle tweaks -->
+<style data-purpose="custom-utilities">
+    body {
+      background-color: #f8fafc;
+      font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="text-slate-700 antialiased min-h-screen flex">
+<!-- BEGIN: LeftSidebar -->
+<aside class="w-64 bg-white border-r border-slate-100 flex flex-col shrink-0 min-h-screen" data-purpose="sidebar">
+<!-- Brand Logo Area -->
+<div class="h-20 flex items-center px-8">
+<span class="text-2xl font-black tracking-tight text-[#0052cc]">SKILLSWAP</span>
+</div>
+<!-- Navigation List -->
+<div class="px-5 py-2 flex flex-col gap-6">
+<!-- Admin Dashboard Primary Button -->
+<div>
+<a class="flex items-center justify-center w-full py-2.5 px-4 bg-[#0052cc] text-white font-medium text-sm rounded-lg shadow-sm hover:bg-[#0045ab] transition" href="usermange1.html">
+          Admin Dashboard
+        </a>
+</div>
+<!-- Menu Group: Management -->
+<div>
+<p class="text-xs font-medium text-slate-400 px-3 uppercase tracking-wider mb-3">Management</p>
+<nav class="space-y-1">
+<!-- Users -->
+<a class="flex items-center gap-3.5 px-3 py-2 text-sm font-medium text-slate-500 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition" href="usermange1.html">
+<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span>Users</span>
+</a>
+<!-- Skills -->
+<a class="flex items-center gap-3.5 px-3 py-2 text-sm font-medium text-slate-500 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition" href="skill.html">
+<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span>Skills</span>
+</a>
+<!-- Sessions (Active) -->
+<a class="flex items-center gap-3.5 px-3 py-2 text-sm font-semibold text-[#0052cc] rounded-lg transition" href="session.html">
+<svg class="w-5 h-5 text-[#0052cc]" fill="currentColor" viewBox="0 0 24 24">
+<path d="M19 4h-3V2h-2v2h-4V2H8v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"></path>
+</svg>
+<span>Sessions</span>
+</a>
+<!-- Wallets -->
+<a class="flex items-center gap-3.5 px-3 py-2 text-sm font-medium text-slate-500 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition" href="wallet.html">
+<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span>Wallets</span>
+</a>
+<!-- Fees -->
+<a class="flex items-center gap-3.5 px-3 py-2 text-sm font-medium text-slate-500 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition" href="fee.html">
+<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span>Fees</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3.5 px-3 py-2 text-sm font-medium text-slate-500 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition" href="settings.html">
+<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+<span>Settings</span>
+</a>
+</nav>
+</div>
+</div>
+</aside>
+<!-- END: LeftSidebar -->
+<!-- BEGIN: MainContentArea -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+<!-- Top Navigation Bar -->
+<!-- BEGIN: TopBar -->
+<header class="h-20 bg-white/70 backdrop-blur-sm border-b border-slate-100 flex items-center justify-between px-8 sticky top-0 z-20" data-purpose="topbar">
+<!-- Search Input Container -->
+<div class="relative w-96">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</span>
+<input class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#0052cc] focus:bg-white focus:ring-1 focus:ring-[#0052cc] transition" placeholder="Search here" type="text">
+</div>
+<!-- User Actions & Profile -->
+<div class="flex items-center gap-4">
+<!-- Notification Bell -->
+<button class="w-9 h-9 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-500 hover:bg-slate-100 transition">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- Fullscreen Icon -->
+<button class="w-9 h-9 flex items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-500 hover:bg-slate-100 transition">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- Administrator Profile -->
+<div class="flex items-center gap-3 pl-2 cursor-pointer">
+<img alt="Rana Maher" class="w-9 h-9 rounded-full object-cover border border-slate-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4dypaTQg9Wxkv5mxFNT0qf4w5UxeVGsI-Rs2qKHXHCNLTF1BE2UWW4XCZQlVHs6gT4XxFpk_S7LJssTKr0lzPFSpEc-1LdLpZyIKtgTwBknHdSr5tmTrAKVLykwoih8uIA5m5kaTPK_vRqCMgEyKJoZnlqpGVv1SYRCYsrCj26cfr_hu2lWGdYw1ui8D72-LaKpyfKxL5w8ZUsTwYtYPy-x5NShMSF_ac3rf1tLN-EcOF-kbof4M9hA">
+<div class="flex flex-col text-left">
+<span class="text-xs font-semibold text-slate-800 leading-tight">Rana Maher</span>
+<span class="text-[11px] font-medium text-[#0052cc] leading-tight">Administrator</span>
+</div>
+<svg class="w-3.5 h-3.5 text-slate-400 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+</header>
+<!-- END: TopBar -->
+<!-- Main Workspace Container -->
+<div class="p-8 space-y-6 max-w-7xl">
+<!-- Title & Subtitle -->
+<div>
+<h1 class="text-2xl font-bold text-slate-900 tracking-tight">Session Management</h1>
+<p class="text-xs text-slate-400 mt-1 font-normal">Monitor learning sessions, track progress, and manage reported or cancelled bookings.</p>
+</div>
+<!-- BEGIN: MetricCards -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-purpose="metrics">
+<!-- Total Sessions Card -->
+<div class="bg-white rounded-xl border border-slate-100 p-5 flex flex-col items-center justify-center text-center shadow-sm">
+<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Total Sessions</span>
+<span class="text-3xl font-bold text-slate-900 mt-2 mb-1">864</span>
+<span class="text-xs font-medium text-emerald-500">+6.4% this month</span>
+</div>
+<!-- Completed Card -->
+<div class="bg-white rounded-xl border border-slate-100 p-5 flex flex-col items-center justify-center text-center shadow-sm">
+<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Completed</span>
+<span class="text-3xl font-bold text-slate-900 mt-2 mb-1">612</span>
+<span class="text-xs font-medium text-emerald-500">Sessions finished</span>
+</div>
+<!-- Upcoming Card -->
+<div class="bg-white rounded-xl border border-slate-100 p-5 flex flex-col items-center justify-center text-center shadow-sm">
+<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Upcoming</span>
+<span class="text-3xl font-bold text-slate-900 mt-2 mb-1">186</span>
+<span class="text-xs font-medium text-amber-500">Scheduled sessions</span>
+</div>
+<!-- Cancelled / Reported Card -->
+<div class="bg-white rounded-xl border border-slate-100 p-5 flex flex-col items-center justify-center text-center shadow-sm">
+<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Cancelled / Reported</span>
+<span class="text-3xl font-bold text-slate-900 mt-2 mb-1">66</span>
+<span class="text-xs font-medium text-rose-500">Needs attention</span>
+</div>
+</section>
+<!-- END: MetricCards -->
+<!-- BEGIN: TableContainer -->
+<section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6" data-purpose="table-card">
+<!-- Table Card Header & Export CTA -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div>
+<h2 class="text-lg font-bold text-slate-800">All Sessions</h2>
+<p class="text-xs text-slate-400 mt-0.5 font-normal">View session details and manage their current status.</p>
+</div>
+<button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#0052cc] hover:bg-[#0045ab] text-white text-xs font-semibold rounded-lg shadow-sm transition">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+<span>Export Report</span>
+</button>
+</div>
+<!-- Filters Bar -->
+<div class="flex flex-wrap items-center gap-3">
+<!-- Text Search Filter -->
+<div class="relative w-72">
+<input class="w-full text-xs text-slate-600 border border-slate-200 rounded-lg px-3.5 py-2 placeholder-slate-400 focus:outline-none focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]" placeholder="Search user or session..." type="text">
+</div>
+<!-- All Status Dropdown -->
+<div class="relative">
+<select class="appearance-none text-xs text-slate-600 border border-slate-200 rounded-lg pl-3.5 pr-8 py-2 bg-white focus:outline-none focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc] cursor-pointer">
+<option>All Status</option>
+<option>Completed</option>
+<option>In Progress</option>
+<option>Upcoming</option>
+<option>Cancelled</option>
+<option>Reported</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- All Categories Dropdown -->
+<div class="relative">
+<select class="appearance-none text-xs text-slate-600 border border-slate-200 rounded-lg pl-3.5 pr-8 py-2 bg-white focus:outline-none focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc] cursor-pointer">
+<option>All Categories</option>
+<option>Design</option>
+<option>Development</option>
+<option>Music</option>
+<option>Marketing</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Date Range Filter -->
+<div>
+<button class="text-xs text-slate-600 border border-slate-200 rounded-lg px-4 py-2 hover:bg-slate-50 transition">
+              Date Range
+            </button>
+</div>
+</div>
+<!-- Table View -->
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-slate-100">
+<th class="pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Session</th>
+<th class="pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Learner</th>
+<th class="pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Teacher</th>
+<th class="pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Date &amp; Time</th>
+<th class="pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center">Status</th>
+<th class="pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-xs">
+<!-- Row 1: UI / UX Design -->
+<tr class="hover:bg-slate-50/60 transition">
+<td class="py-4">
+<div class="font-semibold text-slate-800 text-[13px]">UI / UX Design</div>
+<div class="text-[11px] text-slate-400 mt-0.5">60 min • Online</div>
+</td>
+<td class="py-4 text-slate-600 font-medium">Mona Ali</td>
+<td class="py-4 text-slate-600 font-medium">Sarah Ahmed</td>
+<td class="py-4">
+<div class="text-slate-700 font-medium">Nov 23, 2026</div>
+<div class="text-[11px] text-slate-400 mt-0.5">10:00 AM</div>
+</td>
+<td class="py-4 text-center">
+<span class="inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-[#e6f8ef] text-[#12b76a]">
+                    Completed
+                  </span>
+</td>
+<td class="py-4 text-center">
+<a class="text-[#0052cc] font-semibold hover:underline" href="#">View</a>
+</td>
+</tr>
+<!-- Row 2: Python Basics -->
+<tr class="hover:bg-slate-50/60 transition">
+<td class="py-4">
+<div class="font-semibold text-slate-800 text-[13px]">Python Basics</div>
+<div class="text-[11px] text-slate-400 mt-0.5">45 min • Online</div>
+</td>
+<td class="py-4 text-slate-600 font-medium">Omar Hassan</td>
+<td class="py-4 text-slate-600 font-medium">Ahmed Samir</td>
+<td class="py-4">
+<div class="text-slate-700 font-medium">Nov 23, 2026</div>
+<div class="text-[11px] text-slate-400 mt-0.5">01:30 PM</div>
+</td>
+<td class="py-4 text-center">
+<span class="inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-[#e8f1fd] text-[#2f80ed]">
+                    In Progress
+                  </span>
+</td>
+<td class="py-4 text-center">
+<a class="text-[#0052cc] font-semibold hover:underline" href="#">View</a>
+</td>
+</tr>
+<!-- Row 3: Guitar Lessons -->
+<tr class="hover:bg-slate-50/60 transition">
+<td class="py-4">
+<div class="font-semibold text-slate-800 text-[13px]">Guitar Lessons</div>
+<div class="text-[11px] text-slate-400 mt-0.5">60 min • Online</div>
+</td>
+<td class="py-4 text-slate-600 font-medium">Laila Mostafa</td>
+<td class="py-4 text-slate-600 font-medium">Yara Mahmoud</td>
+<td class="py-4">
+<div class="text-slate-700 font-medium">Nov 24, 2026</div>
+<div class="text-[11px] text-slate-400 mt-0.5">04:00 PM</div>
+</td>
+<td class="py-4 text-center">
+<span class="inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-[#fef5e6] text-[#e59b00]">
+                    Upcoming
+                  </span>
+</td>
+<td class="py-4 text-center">
+<a class="text-[#0052cc] font-semibold hover:underline" href="#">View</a>
+</td>
+</tr>
+<!-- Row 4: Digital Marketing -->
+<tr class="hover:bg-slate-50/60 transition">
+<td class="py-4">
+<div class="font-semibold text-slate-800 text-[13px]">Digital Marketing</div>
+<div class="text-[11px] text-slate-400 mt-0.5">30 min • Online</div>
+</td>
+<td class="py-4 text-slate-600 font-medium">Youssef Ali</td>
+<td class="py-4 text-slate-600 font-medium">Mariam Adel</td>
+<td class="py-4">
+<div class="text-slate-700 font-medium">Nov 20, 2026</div>
+<div class="text-[11px] text-slate-400 mt-0.5">11:00 AM</div>
+</td>
+<td class="py-4 text-center">
+<span class="inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-[#fdeeee] text-[#f04438]">
+                    Cancelled
+                  </span>
+</td>
+<td class="py-4 text-center">
+<a class="text-[#0052cc] font-semibold hover:underline" href="#">View</a>
+</td>
+</tr>
+<!-- Row 5: Photography -->
+<tr class="hover:bg-slate-50/60 transition">
+<td class="py-4">
+<div class="font-semibold text-slate-800 text-[13px]">Photography</div>
+<div class="text-[11px] text-slate-400 mt-0.5">45 min • Online</div>
+</td>
+<td class="py-4 text-slate-600 font-medium">Mariam Adel</td>
+<td class="py-4 text-slate-600 font-medium">Laila Mostafa</td>
+<td class="py-4">
+<div class="text-slate-700 font-medium">Nov 19, 2026</div>
+<div class="text-[11px] text-slate-400 mt-0.5">03:00 PM</div>
+</td>
+<td class="py-4 text-center">
+<span class="inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-[#fef5e6] text-[#e59b00]">
+                    Reported
+                  </span>
+</td>
+<td class="py-4 text-center">
+<a class="text-[#0052cc] font-semibold hover:underline" href="#">Review</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- END: TableContainer -->
+</div>
+</main>
+<!-- END: MainContentArea -->
+
+
+</body></html>

@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum UserStatus {
+  active
+  suspended
+}
+
+enum SkillStatus {
+  pending
+  approved
+  rejected
+}
+
+enum SkillType {
+  offer
+  want
+}
+
+enum SkillLevel {
+  beginner
+  intermediate
+  advanced
+}
+
+enum SwapRequestStatus {
+  pending
+  accepted
+  declined
+  cancelled
+  completed
+}
+
+enum SessionStatus {
+  scheduled
+  completed
+  cancelled
+}
+
+enum PointsTransactionType {
+  bonus
+  earn
+  spend
+  adjustment
+}
+
+enum ReportType {
+  user
+  message
+  bug
+  other
+}
+
+enum ReportStatus {
+  open
+  in_review
+  resolved
+}
+
+model User {
+  id            Int        @id @default(autoincrement())
+  name          String     @db.VarChar(150)
+  email         String     @unique @db.VarChar(255)
+  passwordHash  String     @map("password_hash") @db.VarChar(255)
+  role          UserRole   @default(user)
+  bio           String?    @db.Text
+  avatarPath    String?    @map("avatar_path") @db.VarChar(255)
+  status        UserStatus @default(active)
+  pointsBalance Int        @default(0) @map("points_balance")
+  createdAt     DateTime   @default(now()) @map("created_at")
+
+  projectLinks        UserProjectLink[]
+  availability        Availability[]
+  userSkills          UserSkill[]
+  sentSwapRequests    SwapRequest[]       @relation("SwapSender")
+  receivedSwapRequests SwapRequest[]      @relation("SwapReceiver")
+  taughtSessions      Session[]           @relation("SessionInstructor")
+  learnedSessions     Session[]           @relation("SessionLearner")
+  givenRatings        Rating[]            @relation("RatingReviewer")
+  receivedRatings     Rating[]            @relation("RatingReviewee")
+  pointsTransactions  PointsTransaction[]
+  sentMessages        Message[]           @relation("MessageSender")
+  receivedMessages    Message[]           @relation("MessageReceiver")
+  submittedReports    Report[]            @relation("ReportSubmitter")
+  reportsAgainstMe    Report[]            @relation("ReportedUser")
+
+  @@map("users")
+}
+
+model UserProjectLink {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  url       String   @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_project_links")
+}
+
+model Availability {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  dayOfWeek Int      @map("day_of_week")
+  startTime DateTime @map("start_time") @db.Time(0)
+  endTime   DateTime @map("end_time") @db.Time(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("availability")
+}
+
+model Skill {
+  id        Int         @id @default(autoincrement())
+  skillName String      @unique @map("skill_name") @db.VarChar(120)
+  status    SkillStatus @default(pending)
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  userSkills          UserSkill[]
+  wantedInRequests    SwapRequest[] @relation("WantedSkill")
+  offeredInRequests   SwapRequest[] @relation("OfferedSkill")
+  sessions            Session[]
+
+  @@map("skills")
+}
+
+model UserSkill {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @map("user_id")
+  skillId   Int        @map("skill_id")
+  type      SkillType
+  level     SkillLevel
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId, type])
+  @@index([userId])
+  @@index([skillId])
+  @@map("user_skills")
+}
+
+model SwapRequest {
+  id             Int               @id @default(autoincrement())
+  senderId       Int               @map("sender_id")
+  receiverId     Int               @map("receiver_id")
+  wantedSkillId  Int               @map("wanted_skill_id")
+  offeredSkillId Int?              @map("offered_skill_id")
+  status         SwapRequestStatus @default(pending)
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  sender       User      @relation("SwapSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver     User      @relation("SwapReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  wantedSkill  Skill     @relation("WantedSkill", fields: [wantedSkillId], references: [id])
+  offeredSkill Skill?    @relation("OfferedSkill", fields: [offeredSkillId], references: [id])
+  sessions     Session[]
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([wantedSkillId])
+  @@index([offeredSkillId])
+  @@map("swap_requests")
+}
+
+model Session {
+  id            Int           @id @default(autoincrement())
+  swapRequestId Int           @map("swap_request_id")
+  instructorId  Int           @map("instructor_id")
+  learnerId     Int           @map("learner_id")
+  skillId       Int           @map("skill_id")
+  dateTime      DateTime      @map("date_time")
+  status        SessionStatus @default(scheduled)
+  summary       String?       @db.Text
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  swapRequest        SwapRequest         @relation(fields: [swapRequestId], references: [id], onDelete: Cascade)
+  instructor         User                @relation("SessionInstructor", fields: [instructorId], references: [id])
+  learner            User                @relation("SessionLearner", fields: [learnerId], references: [id])
+  skill              Skill               @relation(fields: [skillId], references: [id])
+  ratings            Rating[]
+  pointsTransactions PointsTransaction[]
+
+  @@index([swapRequestId])
+  @@index([instructorId])
+  @@index([learnerId])
+  @@index([skillId])
+  @@map("sessions")
+}
+
+model Rating {
+  id         Int      @id @default(autoincrement())
+  sessionId  Int      @map("session_id")
+  reviewerId Int      @map("reviewer_id")
+  revieweeId Int      @map("reviewee_id")
+  stars      Int
+  comment    String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  session  Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  reviewer User    @relation("RatingReviewer", fields: [reviewerId], references: [id])
+  reviewee User    @relation("RatingReviewee", fields: [revieweeId], references: [id])
+
+  @@unique([sessionId, reviewerId])
+  @@index([sessionId])
+  @@index([reviewerId])
+  @@index([revieweeId])
+  @@map("ratings")
+}
+
+model PointsTransaction {
+  id        Int                   @id @default(autoincrement())
+  userId    Int                   @map("user_id")
+  sessionId Int?                  @map("session_id")
+  type      PointsTransactionType
+  amount    Int
+  createdAt DateTime              @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([sessionId])
+  @@map("points_transactions")
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  senderId   Int      @map("sender_id")
+  receiverId Int      @map("receiver_id")
+  content    String   @db.Text
+  sentAt     DateTime @default(now()) @map("sent_at")
+
+  sender   User @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([senderId, receiverId, sentAt])
+  @@map("messages")
+}
+
+model Report {
+  id             Int          @id @default(autoincrement())
+  submitterId    Int          @map("submitter_id")
+  reportedUserId Int?         @map("reported_user_id")
+  type           ReportType
+  subject        String       @db.VarChar(255)
+  description    String       @db.Text
+  status         ReportStatus @default(open)
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  submitter    User  @relation("ReportSubmitter", fields: [submitterId], references: [id], onDelete: Cascade)
+  reportedUser User? @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+
+  @@index([submitterId])
+  @@index([reportedUserId])
+  @@map("reports")
+}

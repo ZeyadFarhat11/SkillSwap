@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SkillSwap - Amira Ahmed Profile</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#0b57d0',
+              primary: '#0553bd',
+              dark: '#0a4cb4',
+              soft: '#e9f2ff',
+              light: '#f0f6ff'
+            },
+            surface: '#f5f8fc'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#f5f8fc] text-slate-800 antialiased min-h-screen flex flex-row font-sans selection:bg-blue-100 selection:text-blue-900">
+<!-- BEGIN: Sidebar -->
+<aside class="w-64 bg-white border-r border-slate-200/80 min-h-screen flex flex-col justify-between shrink-0 select-none" data-purpose="sidebar-navigation">
+<div class="px-7 pt-8">
+<!-- App Brand Title -->
+<div class="mb-10">
+<h1 class="text-[22px] font-extrabold tracking-tight text-[#0052b4] uppercase">SKILLSWAP</h1>
+</div>
+<!-- Navigation Section -->
+<nav aria-label="Main Navigation">
+<p class="text-[11px] font-bold text-slate-700 tracking-wider uppercase mb-5">OVERVIEW</p>
+<ul class="space-y-4 text-[14px] font-medium text-slate-600">
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../userdash.html">
+<!-- Home Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Home</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../search/search1.html">
+<!-- Search Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Search</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../swap/swap.html">
+<!-- Swap Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M4.5 12c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M7.5 9l-3 3m0 0l3 3m-3-3h15m0 0l-3-3m3 3l-3 3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Swap</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../chat/chathis.html">
+<!-- Chat Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Chat</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../session/session.html">
+<!-- Session Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Session</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../points/points.html">
+<!-- Points Wallet Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15A2.25 2.25 0 002.25 6.75v10.5A2.25 2.25 0 004.5 19.5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Points Wallet</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../coins/coins.html">
+<!-- Coins Wallet Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6H2.25m0 0v8.25m0 0h19.5m-19.5 0c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125V6a2.25 2.25 0 00-2.25-2.25H3.75m16.5 0v.75a.75.75 0 01-.75.75H18" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Coins Wallet</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../notification/notification.html">
+<!-- Notifications Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Notifications</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3.5 hover:text-[#0052b4] transition-colors group" href="../../progress.html">
+<!-- Profile Icon -->
+<svg class="w-5 h-5 text-slate-500 group-hover:text-[#0052b4]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Profile</span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+<!-- Bottom Settings Section -->
+<div class="px-7 pb-8 pt-6">
+<p class="text-[11px] font-bold text-slate-700 tracking-wider uppercase mb-5">SETTINGS</p>
+<a class="flex items-center gap-3.5 text-[14px] font-medium text-rose-500 hover:text-rose-600 transition-colors" href="../../begin/login.html">
+<!-- Logout Icon -->
+<svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- END: Sidebar -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 flex flex-col items-center justify-start pt-16 px-6 lg:px-12 overflow-y-auto" data-purpose="main-content">
+<div class="w-full max-w-4xl mx-auto flex flex-col items-center">
+<!-- User Profile Header -->
+<section class="flex flex-col items-center text-center mb-8" data-purpose="user-header">
+<!-- Avatar Wrapper -->
+<div class="w-24 h-24 rounded-full overflow-hidden mb-4 shadow-sm bg-slate-100 flex items-center justify-center border border-slate-100">
+<img alt="Amira Ahmed portrait" class="w-full h-full object-cover object-top" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB32OVH-wVtfYlYt_f1U_1WiMAloLLvl7FsxB99QlKwyRdjxZqAvw3QttnJJ1YxVD6PyPVP-ToOxCymKoh9EITA2lJ0GvSjkBTqGFibfoEYCgINyA9ZnSD2m_maj12H6prl4Gt_h9EUu-4QnMStm3CeCTUnriS4v8w4HBncjhoke0EPJCnmzzCns5cay4gCoeu-SdHjREUH3s9ANgyn4C1LnsrCWwAb5yXDiQEb7UqFKX0eD9-7SHVUDQ">
+</div>
+<!-- Name & Headline -->
+<h2 class="text-2xl font-bold text-[#09357a] tracking-tight mb-1">Amira Ahmed</h2>
+<p class="text-sm font-normal text-slate-500 mb-2">IT Engineer</p>
+<!-- Star Rating -->
+<div aria-label="Rating: 4.6 out of 5 stars" class="flex items-center justify-center gap-1.5">
+<div class="flex items-center text-amber-400 gap-0.5">
+<!-- 5 Filled Gold Stars -->
+<svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+</svg>
+<svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+</svg>
+<svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+</svg>
+<svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+</svg>
+<svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+</svg>
+</div>
+<span class="text-sm font-semibold text-slate-800 ml-1">4.6</span>
+</div>
+</section>
+<!-- Stat Cards Grid -->
+<section class="w-full grid grid-cols-3 gap-4 mb-5" data-purpose="metrics-summary">
+<!-- Stat Card 1 -->
+<div class="bg-[#e9f2ff] rounded-xl py-3.5 px-4 text-center">
+<div class="text-[20px] font-bold text-[#0052b4] leading-tight">30</div>
+<div class="text-[12px] font-medium text-slate-500 mt-0.5">Taught</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-[#e9f2ff] rounded-xl py-3.5 px-4 text-center">
+<div class="text-[20px] font-bold text-[#0052b4] leading-tight">10</div>
+<div class="text-[12px] font-medium text-slate-500 mt-0.5">Learned</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-[#e9f2ff] rounded-xl py-3.5 px-4 text-center">
+<div class="text-[20px] font-bold text-[#0052b4] leading-tight">70</div>
+<div class="text-[12px] font-medium text-slate-500 mt-0.5">Points</div>
+</div>
+</section>
+<!-- Skills / Badges List -->
+<section class="w-full flex flex-wrap items-center justify-start gap-2.5 mb-6" data-purpose="skills-badges">
+<span class="inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-medium bg-[#d8f8e8] text-[#136c47]">
+          Cybersecurity
+        </span>
+<span class="inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-medium bg-[#d8f8e8] text-[#136c47]">
+          Fitness Training
+        </span>
+<span class="inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-medium bg-[#d8f8e8] text-[#136c47]">
+          French
+        </span>
+</section>
+<!-- Action Buttons -->
+<section class="w-full flex flex-col gap-3.5" data-purpose="profile-actions">
+<!-- Message Salma Button -->
+<button class="w-full py-3 px-6 rounded-full bg-[#0553bd] hover:bg-[#04439c] active:bg-[#03367d] text-white font-medium text-sm text-center shadow-xs transition-colors" type="button" onclick="location.href='../../user6/chat6.html'">
+          Message Salma
+        </button>
+<!-- Secondary Action Row -->
+<div class="w-full grid grid-cols-2 gap-4">
+<!-- Report User Button -->
+<button class="w-full py-3 px-6 rounded-full bg-[#fde8e8] hover:bg-[#fcd4d4] active:bg-[#fbc0c0] text-[#c92a2a] font-medium text-sm text-center transition-colors" type="button" onclick="location.href='../../user6/report6.html'">
+            Report User
+          </button>
+<!-- Leave a Review Button -->
+<button class="w-full py-3 px-6 rounded-full bg-[#e9f2ff] hover:bg-[#dce9fd] active:bg-[#cde1fc] text-[#0052b4] font-medium text-sm text-center transition-colors" type="button" onclick="location.href='../../user6/leaverev6.html'">
+            Leave a Review
+          </button>
+</div>
+</section>
+</div>
+</main>
+<!-- END: MainContent -->
+
+
+</body></html>

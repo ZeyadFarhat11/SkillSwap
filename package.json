@@ -1,0 +1,53 @@
+{
+  "name": "skillswap",
+  "version": "1.0.0",
+  "description": "SkillSwap peer-to-peer skill exchange platform",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "concurrently -n server,css -c blue,green \"nodemon src/server.js\" \"npx tailwindcss -i ./src/styles/tailwind.css -o ./public/css/app.css --watch\"",
+    "build:css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./public/css/app.css --minify",
+    "prisma:generate": "npx prisma generate",
+    "prisma:validate": "npx prisma validate",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:seed": "node prisma/seed.js",
+    "test": "jest --runInBand",
+    "lint": "eslint src prisma tests",
+    "format": "prettier --write \"src/**/*.js\" \"prisma/**/*.js\" \"tests/**/*.js\""
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.7",
+    "csrf-csrf": "^3.2.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-mysql-session": "^3.0.3",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "file-type": "^16.5.4",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.12.0",
+    "pug": "^3.0.3",
+    "sharp": "^0.33.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.10",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.21.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.5.2",
+    "prisma": "^6.5.0",
+    "supertest": "^7.0.0",
+    "tailwindcss": "^3.4.17"
+  }
+}

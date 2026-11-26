@@ -1,0 +1,33 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: skillswap-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: skillswap
+      MYSQL_USER: skillswap
+      MYSQL_PASSWORD: skillswap
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-prootpassword']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Phase 7: FastAPI suggestions service
+  # ml-service:
+  #   build: ./ml-service
+  #   container_name: skillswap-ml
+  #   restart: unless-stopped
+  #   ports:
+  #     - '8000:8000'
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+
+volumes:
+  mysql_data:

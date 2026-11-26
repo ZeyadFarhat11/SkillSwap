@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# Uploads (user-generated images)
+uploads/*
+!uploads/.gitkeep
+
+# Built assets
+public/css/app.css
+
+# Logs & OS
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+
+# Python ML service
+ml-service/.venv/
+ml-service/__pycache__/
+*.pyc

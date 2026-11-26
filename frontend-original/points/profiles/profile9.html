@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Alaa Ahmed Profile - SkillSwap</title>
+<!-- Tailwind CSS v3 CDN with forms and container-queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#0D62D9',
+              darkBlue: '#0F47A6',
+              navyText: '#0B3A82',
+              lightBg: '#F4F7FB',
+              cardBg: '#E9F2FE',
+              reviewBg: '#EAF1FB',
+              reviewText: '#1A73E8',
+              tagBg: '#D5F7E6',
+              tagText: '#0F5132',
+              reportBg: '#FFEAEA',
+              reportText: '#D93025'
+            }
+          }
+        }
+      }
+    };
+  </script>
+<!-- Custom Styles for Typography & Fine Adjustments -->
+<style data-purpose="custom-layout">
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #F4F7FB;
+      margin: 0;
+      padding: 0;
+      color: #333333;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex bg-[#F4F7FB] antialiased select-none">
+<!-- BEGIN: LeftSidebar -->
+<aside class="w-64 min-w-[256px] bg-white min-h-screen flex flex-col justify-between py-8 px-7 border-r border-transparent" data-purpose="sidebar-navigation">
+<!-- Top Section: Brand & Navigation -->
+<div class="flex flex-col">
+<!-- Brand Logo -->
+<div class="text-[#0D62D9] font-extrabold text-[22px] tracking-wide mb-10">
+        SKILLSWAP
+      </div>
+<!-- Navigation Group: Overview -->
+<div>
+<p class="text-[12px] font-bold text-gray-700 tracking-wider mb-5 uppercase">
+          OVERVIEW
+        </p>
+<nav class="space-y-4 text-[14px] font-medium text-gray-500">
+<!-- Home -->
+<a class="flex items-center gap-3.5 text-[#0D62D9] hover:opacity-80 transition-opacity" href="../../userdash.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Home</span>
+</a>
+<!-- Search -->
+<a class="flex items-center gap-3.5 text-gray-500 hover:text-gray-800 transition-colors" href="../../search/search1.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Search</span>
+</a>
+<!-- Swap -->
+<a class="flex items-center gap-3.5 text-gray-500 hover:text-gray-800 transition-colors" href="../../swap/swap.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Swap</span>
+</a>
+<!-- Chat -->
+<a class="flex items-center gap-3.5 text-gray-500 hover:text-gray-800 transition-colors" href="../../chat/chathis.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Chat</span>
+</a>
+<!-- Session -->
+<a class="flex items-center gap-3.5 text-gray-500 hover:text-gray-800 transition-colors" href="../../session/session.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M5 3.5L3.5 5m15.5-1.5L20.5 5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Session</span>
+</a>
+<!-- Points Wallet -->
+<a class="flex items-center gap-3.5 text-gray-500 hover:text-gray-800 transition-colors" href="../../points/points.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<rect height="13" rx="2" width="19" x="2.5" y="5.5"></rect>
+<path d="M2.5 10h19" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Points Wallet</span>
+</a>
+<!-- Coins Wallet -->
+<a class="flex items-center gap-3.5 text-gray-500 hover:text-gray-800 transition-colors" href="../../coins/coins.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<rect height="12" rx="2" width="19" x="2.5" y="6"></rect>
+<circle cx="12" cy="12" r="2.5"></circle>
+<path d="M6 10h.01M18 14h.01" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Coins Wallet</span>
+</a>
+<!-- Notifications -->
+<a class="flex items-center gap-3.5 text-gray-500 hover:text-gray-800 transition-colors" href="../../notification/notification.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Notifications</span>
+</a>
+<!-- Profile -->
+<a class="flex items-center gap-3.5 text-gray-500 hover:text-gray-800 transition-colors" href="../../progress.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Profile</span>
+</a>
+</nav>
+</div>
+</div>
+<!-- Bottom Section: Settings & Logout -->
+<div class="pt-6">
+<p class="text-[12px] font-bold text-gray-700 tracking-wider mb-5 uppercase">
+        SETTINGS
+      </p>
+<a class="flex items-center gap-3 text-[#EA4335] text-[14px] font-medium hover:opacity-80 transition-opacity" href="../../begin/login.html">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-width="1.8" viewBox="0 0 24 24">
+<path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- END: LeftSidebar -->
+<!-- BEGIN: MainContentArea -->
+<main class="flex-1 flex justify-center py-16 px-10 overflow-y-auto">
+<!-- Centered Profile Wrapper Container -->
+<div class="w-full max-w-[830px] flex flex-col items-center">
+<!-- Avatar Section -->
+<div class="w-24 h-24 rounded-full overflow-hidden mb-4 bg-gray-200" data-purpose="profile-avatar">
+<img alt="Alaa Ahmed Profile Picture" class="w-full h-full object-cover object-top" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6hrllDgkImWy7OUWLtnh-ZsVjcq6zqYIQRmWBbH6DHIyoFg3j-dnxOrZ7Fnd9J_5CqQJL8r4-XFL-uopfacKcBEcLMK9aji2sWkR4WzzzWKYNUuNf7OR_mfa8UFcj0sT_fxnptLyMDJ4mehO3H5aAfS4C7uUf4EAeO2IJjNfxr03sueWXh3jJQ_OezIwxuOhSjGSBoCxlxgMysNNbHTt3jkurr0BFEFl5kIwzoq_eLbKbwdA_fJMZFA">
+</div>
+<!-- User Identification -->
+<h1 class="text-[25px] font-bold text-[#0B3A82] tracking-tight mb-1 text-center">
+        Alaa Ahmed
+      </h1>
+<p class="text-[14px] text-gray-400 font-normal mb-2 text-center">
+        IT Engineer
+      </p>
+<!-- User Rating Stars & Score -->
+<div class="flex items-center justify-center gap-1 mb-8" data-purpose="user-rating">
+<!-- 5 Outline/Filled Gold Stars matching 4.2 rating -->
+<div class="flex text-[#F5A623]">
+<svg class="w-4 h-4 fill-current stroke-current" viewBox="0 0 24 24">
+<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+</svg>
+<svg class="w-4 h-4 fill-current stroke-current" viewBox="0 0 24 24">
+<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+</svg>
+<svg class="w-4 h-4 fill-current stroke-current" viewBox="0 0 24 24">
+<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+</svg>
+<svg class="w-4 h-4 fill-current stroke-current" viewBox="0 0 24 24">
+<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+</svg>
+<svg class="w-4 h-4 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24">
+<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+</svg>
+</div>
+<span class="text-[13px] font-bold text-gray-800 ml-1">4.2</span>
+</div>
+<!-- Stats Overview Cards (Taught, Learned, Points) -->
+<section class="w-full grid grid-cols-3 gap-5 mb-5" data-purpose="user-statistics">
+<!-- Stat 1: Taught -->
+<div class="bg-[#E9F2FE] rounded-2xl py-3.5 text-center flex flex-col justify-center">
+<span class="text-[19px] font-bold text-[#0D62D9] leading-tight">30</span>
+<span class="text-[12px] font-medium text-gray-500 mt-0.5">Taught</span>
+</div>
+<!-- Stat 2: Learned -->
+<div class="bg-[#E9F2FE] rounded-2xl py-3.5 text-center flex flex-col justify-center">
+<span class="text-[19px] font-bold text-[#0D62D9] leading-tight">10</span>
+<span class="text-[12px] font-medium text-gray-500 mt-0.5">Learned</span>
+</div>
+<!-- Stat 3: Points -->
+<div class="bg-[#E9F2FE] rounded-2xl py-3.5 text-center flex flex-col justify-center">
+<span class="text-[19px] font-bold text-[#0D62D9] leading-tight">70</span>
+<span class="text-[12px] font-medium text-gray-500 mt-0.5">Points</span>
+</div>
+</section>
+<!-- Skills Badges / Pills -->
+<div class="w-full flex items-center justify-start gap-2.5 mb-6" data-purpose="skills-badges">
+<span class="bg-[#D5F7E6] text-[#0F5132] text-[13px] font-semibold px-4 py-1.5 rounded-full inline-block">
+          Cybersecurity
+        </span>
+<span class="bg-[#D5F7E6] text-[#0F5132] text-[13px] font-semibold px-4 py-1.5 rounded-full inline-block">
+          Fitness Training
+        </span>
+<span class="bg-[#D5F7E6] text-[#0F5132] text-[13px] font-semibold px-4 py-1.5 rounded-full inline-block">
+          French
+        </span>
+</div>
+<!-- Primary Action: Message Button -->
+<button class="w-full bg-[#0B57D0] hover:bg-[#0948b0] text-white font-medium text-[15px] py-3 rounded-full mb-3 shadow-none transition-colors" data-purpose="action-message" type="button" onclick="location.href='../../user9/chat9.html'">
+        Message Salma
+      </button>
+<!-- Secondary Actions: Report User & Leave a Review -->
+<div class="w-full grid grid-cols-2 gap-3" data-purpose="secondary-actions">
+<!-- Report User -->
+<button class="w-full bg-[#FFEAEA] hover:bg-[#ffd9d9] text-[#D93025] font-semibold text-[14px] py-3 rounded-full text-center transition-colors" type="button" onclick="location.href='../../user9/report9.html'">
+          Report User
+        </button>
+<!-- Leave a Review -->
+<button class="w-full bg-[#EAF1FB] hover:bg-[#deebfb] text-[#1A73E8] font-semibold text-[14px] py-3 rounded-full text-center transition-colors" type="button" onclick="location.href='../../user9/leaverev9.html'">
+          Leave a Review
+        </button>
+</div>
+</div>
+</main>
+<!-- END: MainContentArea -->
+
+
+</body></html>

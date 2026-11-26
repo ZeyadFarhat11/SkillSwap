@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.form-input-field {
+  background-color: #f8faff;
+  border: 1px solid #dce4ee;
+  border-radius: 0.85rem;
+  height: 48px;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  font-size: 0.925rem;
+  color: #334155;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.form-input-field::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.form-input-field:focus {
+  outline: none;
+  border-color: #0052cc;
+  box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.15);
+  background-color: #ffffff;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+}
+
+.input-success {
+  border-color: #10b981 !important;
+}
+
+.error-message {
+  display: none;
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 7px;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: #0052cc;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+}

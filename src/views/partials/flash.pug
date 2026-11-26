@@ -1,0 +1,8 @@
+if flash && (flash.error && flash.error.length || flash.success && flash.success.length || flash.info && flash.info.length)
+  .max-w-5xl.mx-auto.w-full.px-4.pt-4.space-y-2
+    each msg in (flash.error || [])
+      .rounded-xl.border.border-rose-200.bg-rose-50.px-4.py-3.text-sm.font-medium.text-rose-700(role='alert')= msg
+    each msg in (flash.success || [])
+      .rounded-xl.border.border-emerald-200.bg-emerald-50.px-4.py-3.text-sm.font-medium.text-emerald-700(role='status')= msg
+    each msg in (flash.info || [])
+      .rounded-xl.border.border-blue-200.bg-blue-50.px-4.py-3.text-sm.font-medium.text-blue-700(role='status')= msg

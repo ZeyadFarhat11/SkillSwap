@@ -1,0 +1,468 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+<title>SkillSwap - Sign Up</title>
+
+<!-- Tailwind CSS v3 CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                brand: {
+                    blue: '#0052cc',
+                    hover: '#0047b3',
+                    text: '#0043a6',
+                    green: '#10b981',
+                    yellow: '#facc15'
+                },
+                inputBg: '#f8faff',
+                inputBorder: '#e2e8f0',
+                subtext: '#64748b'
+            },
+            fontFamily: {
+                sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            }
+        }
+    }
+}
+</script>
+
+<!-- Custom Styles -->
+<style>
+body {
+    background-color: #ffffff;
+    color: #1e293b;
+}
+
+.form-input-field {
+    background-color: #f8faff;
+    border: 1px solid #dce4ee;
+    border-radius: 0.85rem;
+    height: 48px;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    font-size: 0.925rem;
+    color: #334155;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.form-input-field::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.form-input-field:focus {
+    outline: none;
+    border-color: #0052cc;
+    box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.15);
+    background-color: #ffffff;
+}
+
+/* Error Style */
+.form-input-field.input-error {
+    border-color: #ef4444;
+}
+
+/* Success Style */
+.form-input-field.input-success {
+    border-color: #10b981;
+}
+
+/* Error Message */
+.error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 7px;
+    display: none;
+}
+
+/* Success Message */
+#successMessage {
+    display: none;
+}
+</style>
+
+</head>
+
+<body class="min-h-screen flex flex-col justify-start items-center pt-24 pb-16 px-4 selection:bg-blue-100 selection:text-blue-900 font-sans">
+
+<!-- SignUpContainer -->
+<main class="w-full max-w-[1380px] mx-auto flex flex-col items-center" data-purpose="signup-card">
+
+<!-- HeaderSection -->
+<header class="flex flex-col items-center mb-10 text-center" data-purpose="brand-header">
+
+<div aria-hidden="true" class="relative w-16 h-16 flex items-center justify-center mb-1">
+
+<svg aria-label="SkillSwap Lightbulb Logo"
+class="w-full h-full drop-shadow-sm overflow-visible"
+fill="none" viewBox="0 0 120 120"
+xmlns="http://www.w3.org/2000/svg">
+
+<g stroke="#F59E0B" stroke-linecap="round" stroke-width="4.5">
+<line x1="24" y1="24" x2="37" y2="36" stroke="#FBBF24" stroke-width="4"/>
+<line x1="16" y1="54" x2="30" y2="54"/>
+<line x1="24" y1="84" x2="36" y2="75" stroke="#FBBF24" stroke-width="4"/>
+<line x1="96" y1="24" x2="83" y2="36" stroke="#FBBF24" stroke-width="4"/>
+<line x1="104" y1="54" x2="90" y2="54"/>
+<line x1="96" y1="84" x2="84" y2="75" stroke="#FBBF24" stroke-width="4"/>
+<circle cx="60" cy="6" r="2.5" fill="#F59E0B"/>
+</g>
+
+<path d="M60 16C43.5 16 33 28.5 33 46C33 57.5 40 68 47.5 76H72.5C80 68 87 57.5 87 46C87 28.5 76.5 16 60 16Z"
+fill="#FFFFFF" stroke="#0A3B7B" stroke-linejoin="round" stroke-width="5"/>
+
+<path d="M49 84H71" stroke="#0A3B7B" stroke-linecap="round" stroke-width="5"/>
+<path d="M51 92H69" stroke="#0A3B7B" stroke-linecap="round" stroke-width="5"/>
+<path d="M55 99H65" stroke="#0A3B7B" stroke-linecap="round" stroke-width="4"/>
+
+<circle cx="49" cy="40" fill="#0A3B7B" r="5"/>
+<path d="M41 55C41 49.5 44.5 47 49 47C53.5 47 57 49.5 57 55" fill="#0A3B7B"/>
+
+<circle cx="71" cy="40" fill="#00A865" r="5"/>
+<path d="M63 55C63 49.5 66.5 47 71 47C75.5 47 79 49.5 79 55" fill="#00A865"/>
+
+<path d="M52 30C55 28 64 28 68 31" fill="none" stroke="#0A3B7B" stroke-linecap="round" stroke-width="3"/>
+<polygon fill="#0A3B7B" points="69,27 75,32 68,36"/>
+
+<path d="M68 62C65 65 56 65 52 62" fill="none" stroke="#00A865" stroke-linecap="round" stroke-width="3"/>
+<polygon fill="#00A865" points="51,65 45,61 52,57"/>
+
+</svg>
+</div>
+
+<h1 class="text-[26px] font-extrabold tracking-tight text-[#0052cc] flex items-center justify-center">
+    Skill<span class="text-[#059669]">Swap</span>
+</h1>
+
+<p class="text-sm font-medium text-slate-500 mt-2 tracking-normal">
+    Learn something. Teach something.
+</p>
+
+</header>
+
+<!-- SignUpForm -->
+
+<form id="signupForm" class="w-full space-y-4" data-purpose="registration-form" novalidate>
+
+<!-- First Name -->
+<div>
+<label class="sr-only" for="firstName">First Name</label>
+
+<input
+autocomplete="given-name"
+class="form-input-field"
+id="firstName"
+name="firstName"
+placeholder="First Name"
+type="text"
+>
+
+<p class="error-message" id="firstNameError"></p>
+</div>
+
+<!-- Last Name -->
+<div>
+<label class="sr-only" for="lastName">Last Name</label>
+
+<input
+autocomplete="family-name"
+class="form-input-field"
+id="lastName"
+name="lastName"
+placeholder="Last Name"
+type="text"
+>
+
+<p class="error-message" id="lastNameError"></p>
+</div>
+
+<!-- Email -->
+<div>
+<label class="sr-only" for="email">Email</label>
+
+<input
+autocomplete="email"
+class="form-input-field"
+id="email"
+name="email"
+placeholder="Email"
+type="email"
+>
+
+<p class="error-message" id="emailError"></p>
+</div>
+
+<!-- Password -->
+<div>
+<label class="sr-only" for="password">Password</label>
+
+<input
+autocomplete="new-password"
+class="form-input-field"
+id="password"
+name="password"
+placeholder="Password"
+type="password"
+>
+
+<p class="error-message" id="passwordError"></p>
+</div>
+
+<!-- Confirm Password -->
+<div>
+<label class="sr-only" for="confirmPassword">Confirm Password</label>
+
+<input
+autocomplete="new-password"
+class="form-input-field"
+id="confirmPassword"
+name="confirmPassword"
+placeholder="Confirm Password"
+type="password"
+>
+
+<p class="error-message" id="confirmPasswordError"></p>
+</div>
+
+<!-- Success Message -->
+<div id="successMessage"
+class="text-sm text-green-600 text-center font-semibold">
+Registration completed successfully!
+</div>
+
+<!-- Submit Button -->
+<div class="pt-2" data-purpose="action-container">
+
+<button
+class="w-full bg-[#0052cc] hover:bg-[#0047b3] active:bg-[#003d99] text-white font-medium py-3.5 px-6 rounded-full shadow-sm transition-colors duration-150 text-base flex justify-center items-center tracking-wide"
+id="submit-button"
+type="submit">
+
+Sign Up
+
+</button>
+
+</div>
+
+</form>
+
+<!-- FooterLinks -->
+<div class="mt-6 text-center" data-purpose="login-link-container">
+
+<a
+class="text-sm font-semibold text-[#0052cc] hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-sm"
+href="login.html">
+
+Already have an account? Log In
+
+</a>
+
+</div>
+
+</main>
+
+<!-- JavaScript -->
+<script>
+
+const form = document.getElementById("signupForm");
+
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirmPassword");
+
+const submitButton = document.getElementById("submit-button");
+const successMessage = document.getElementById("successMessage");
+
+
+// Show Error
+function showError(input, message) {
+
+    const error = document.getElementById(input.id + "Error");
+
+    input.classList.add("input-error");
+    input.classList.remove("input-success");
+
+    error.textContent = message;
+    error.style.display = "block";
+
+}
+
+
+// Show Success
+function showSuccess(input) {
+
+    const error = document.getElementById(input.id + "Error");
+
+    input.classList.remove("input-error");
+    input.classList.add("input-success");
+
+    error.textContent = "";
+    error.style.display = "none";
+
+}
+
+
+// Validate First Name
+function validateFirstName() {
+
+    if (firstName.value.trim() === "") {
+        showError(firstName, "Please enter your first name.");
+        return false;
+    }
+
+    showSuccess(firstName);
+    return true;
+
+}
+
+
+// Validate Last Name
+function validateLastName() {
+
+    if (lastName.value.trim() === "") {
+        showError(lastName, "Please enter your last name.");
+        return false;
+    }
+
+    showSuccess(lastName);
+    return true;
+
+}
+
+
+// Validate Email
+function validateEmail() {
+
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (email.value.trim() === "") {
+
+        showError(email, "Please enter your email address.");
+        return false;
+
+    }
+
+    if (!emailPattern.test(email.value.trim())) {
+
+        showError(email, "Invalid email! Example: name@example.com");
+        return false;
+
+    }
+
+    showSuccess(email);
+    return true;
+
+}
+
+
+// Validate Password
+function validatePassword() {
+
+    if (password.value.length < 8) {
+
+        showError(password, "Password must be at least 8 characters.");
+        return false;
+
+    }
+
+    showSuccess(password);
+    return true;
+
+}
+
+
+// Validate Confirm Password
+function validateConfirmPassword() {
+
+    if (confirmPassword.value === "") {
+
+        showError(confirmPassword, "Please confirm your password.");
+        return false;
+
+    }
+
+    if (confirmPassword.value !== password.value) {
+
+        showError(confirmPassword, "Passwords do not match.");
+        return false;
+
+    }
+
+    showSuccess(confirmPassword);
+    return true;
+
+}
+
+
+// Live Validation
+firstName.addEventListener("input", validateFirstName);
+
+lastName.addEventListener("input", validateLastName);
+
+email.addEventListener("input", validateEmail);
+
+password.addEventListener("input", function() {
+
+    validatePassword();
+
+    if (confirmPassword.value !== "") {
+        validateConfirmPassword();
+    }
+
+});
+
+confirmPassword.addEventListener("input", validateConfirmPassword);
+
+
+// Form Submit
+form.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    successMessage.style.display = "none";
+
+    const isFirstNameValid = validateFirstName();
+    const isLastNameValid = validateLastName();
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
+    const isConfirmPasswordValid = validateConfirmPassword();
+
+    if (
+        isFirstNameValid &&
+        isLastNameValid &&
+        isEmailValid &&
+        isPasswordValid &&
+        isConfirmPasswordValid
+    ) {
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Creating Account...";
+
+        successMessage.style.display = "block";
+
+        setTimeout(function() {
+
+            window.location.href = "get3points.html";
+
+        }, 1200);
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
