@@ -8,6 +8,10 @@ const flash = require('connect-flash');
 const env = require('./config/env');
 const { createSessionMiddleware } = require('./config/session');
 const { csrfProtection, attachCsrfToken } = require('./middlewares/csrf');
+const {
+  attachPlatformSettings,
+  enforceMaintenanceMode,
+} = require('./middlewares/platformSettings');
 const { attachNotificationBadge } = require('./middlewares/notifications');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/authRoutes');
@@ -21,6 +25,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const pointsRoutes = require('./routes/pointsRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const pageRoutes = require('./routes/pageRoutes');
 
 const app = express();
@@ -70,9 +75,11 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(attachPlatformSettings);
 app.use(attachNotificationBadge);
 app.use(csrfProtection);
 app.use(attachCsrfToken);
+app.use(enforceMaintenanceMode);
 
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
@@ -90,6 +97,7 @@ app.use(messageRoutes);
 app.use(reportRoutes);
 app.use(pointsRoutes);
 app.use(notificationRoutes);
+app.use(adminRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

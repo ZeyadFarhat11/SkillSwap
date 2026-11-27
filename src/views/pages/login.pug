@@ -21,9 +21,13 @@ block content
             path(d='M29.5 53H34.5' stroke='#0052cc' stroke-linecap='round' stroke-width='2')
             path(d='M30.5 56C30.5 57 31.2 57.8 32 57.8C32.8 57.8 33.5 57 33.5 56H30.5Z' fill='#0052cc')
 
+        - var lName = (platformSettings && platformSettings.platformName) ? platformSettings.platformName : 'SkillSwap'
         h1.text-2xl.font-bold.tracking-tight
-          span(class='text-[#0b2545]') Skill
-          span(class='text-[#10b981]') Swap
+          if lName.toLowerCase() === 'skillswap'
+            span(class='text-[#0b2545]') Skill
+            span(class='text-[#10b981]') Swap
+          else
+            span(class='text-[#0b2545]')= lName
 
         p.text-slate-500.text-sm.mt-3.font-normal Learn something. Teach something.
 

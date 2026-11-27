@@ -111,6 +111,22 @@
     - Added `tests/notifications.test.js` (aggregation, clearing, and unseen red-dot lifecycle), extended `tests/requests.test.js` (swap search filtering) and `tests/pages.test.js` (`/notifications`).
     - Verified `npm run lint` (0 errors, 0 warnings), JS syntax checks, Pug compilation, `npm run build:css`, and `npm test` (12/12 suites, 50/50 tests passing).
 
+- **Phase 8 (Admin moderation, signed points adjustment, HTML-matched admin UI, sessions, settings, & error pages — Phase 7 skipped)** — implemented and tested:
+  - Architecture, schema & rules (`docs/ARCHITECTURE.md`, `prisma/schema.prisma`, `prisma/migrations/20261127070500_add_platform_settings`):
+    - Updated Section 6 points rules to permit negative signed integers exclusively for `adjustment` transactions while keeping `points_balance >= 0`, added singleton `PlatformSetting` model/migration (`platform_settings`), and documented all Phase 8 admin & email verification routes in Section 8.
+  - Models, validators, services, middlewares, controllers, & routes:
+    - Updated `src/models/userModel.js` (`listAllUsersForAdmin`, `updateUserStatus`, `adjustUserPointsTx` running in a single `prisma.$transaction` with `FOR UPDATE` row lock, balance `>= 0` guard, `adjustment` transaction creation, and `points_balance` update), `src/models/skillModel.js` (`listAllSkillsForAdmin`, `findSkillByName`, `createApprovedSkill`, `updateSkillStatus`, `countSkillReferences`, `deleteSkillById`), `src/models/sessionModel.js` (`listAllSessionsForAdmin`), `src/models/reportModel.js` (`findById`, `listAllReportsForAdmin`, `updateReportStatus`), and added `src/models/settingsModel.js`.
+    - Added `src/validators/adminValidator.js`, `src/services/adminService.js`, `src/services/settingsService.js`, `src/middlewares/platformSettings.js` (`attachPlatformSettings`, `enforceMaintenanceMode`), `src/controllers/adminController.js`, and `src/routes/adminRoutes.js` mounted in `src/app.js` behind `requireAuth` + `requireRole('admin')`.
+    - Wired `allowRegistrations`, `requireEmailVerification` (`/verify-email`), and `maintenanceMode` into `src/controllers/authController.js` and `src/routes/authRoutes.js`.
+    - Removed remaining Phase 4 admin placeholders from `src/controllers/pageController.js` and `src/routes/pageRoutes.js`, and updated `src/services/pointsService.js` for negative `adjustment` rendering.
+  - Views matching `frontend-original/admin/*` & error handling:
+    - Updated `src/views/partials/adminSidebar.pug` with the 4 requested Management navbar links (`Users`, `Skills`, `Sessions`, `Settings`) and added `src/views/partials/adminTopbar.pug`.
+    - Rebuilt `src/views/pages/adminUsers.pug` (HTML original cards + Overview SVG chart + searchable Users table with suspend/reactivate and inline `+/- pts` form), `src/views/pages/adminSkills.pug` (metrics + inline `+ Add Skill` form + searchable Skills table with approve/reject & per-row `Remove` button), added `src/views/pages/adminSessions.pug` (read-only searchable sessions metrics/filter/table without row actions matching `admin/session.html`), updated `src/views/pages/adminReports.pug` (searchable Reports table + admin topbar), added `public/js/adminSearch.js` for instant table search alongside `GET ?q=` filtering, added `src/views/pages/adminSettings.pug` (working **General Information** and **Platform Preferences** forms matching `admin/settings.html`), and added `src/views/pages/verifyEmail.pug`.
+    - Updated `src/views/layouts/base.pug`, `src/views/partials/{sidebar,footer}.pug`, `src/views/pages/{welcome,login,register}.pug` to reflect `platformSettings`, and updated `src/middlewares/errorHandler.js` & `src/views/pages/error.pug` for `400`, `409`, `413`, `500`, and `503`.
+  - Tests & checks:
+    - Expanded `tests/admin.test.js`, `tests/reportsPoints.test.js`, and `tests/pages.test.js` covering all 4 admin views, table search filtering across all admin tables, HTML cards/Overview chart, add/remove skills + FK guard, read-only admin sessions, signed points adjustment (`FOR UPDATE`, non-admin `403`, `<0` guard, sum invariant), General Info & Platform Preferences enforcement (`allowRegistrations`, `requireEmailVerification`, `maintenanceMode`), and 404/500 pages.
+    - Verified `npm run lint` (0 errors, 0 warnings), `npx prisma validate`, Pug compilation across all `src/views/pages/*.pug`, `npm run build:css`, and `npm test` (13/13 suites, 58/58 tests passing).
+
 ## Decisions
 
 Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
@@ -155,6 +171,9 @@ Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
     - Used `sticky top-0 h-screen overflow-y-auto` on both `sidebar.pug` and `adminSidebar.pug` so navigation stays fixed on scroll without breaking existing `.flex-1` page layouts.
 24. **Phase 6.3 dynamic notifications & unread badge (`src/models/notificationModel.js`, `src/services/notificationService.js`, `src/middlewares/notifications.js`, `src/controllers/notificationController.js`, `public/js/notifications.js`)**:
     - Derived notifications dynamically from existing `messages`, `swap_requests`, `sessions`, and `ratings` tables (requiring no DB schema migration), storing separate `notificationsSeenAt` (set on visiting `GET /notifications` to clear the sidebar red dot without erasing the feed) and `notificationsClearedAt` (set on `POST /notifications/clear`) watermarks in the user's Express session, plus live Socket.IO dot activation via `window.__skillswapSocket`.
+25. **Phase 8 admin safety guards, signed points adjustments, & error handling (`src/services/adminService.js`, `src/models/userModel.js`, `src/middlewares/errorHandler.js`, `src/views/pages/error.pug`)**:
+    - Prevented admins from suspending themselves or other `admin` accounts, restricted skill moderation to `pending` skills, and capped `adjustPointsSchema` signed integer adjustments to non-zero values in `[-100000, 100000]` inside a single `prisma.$transaction` with `FOR UPDATE` row lock and balance `>= 0` guard.
+    - Updated `errorHandler.js` to map malformed JSON (`entity.parse.failed` -> `400`) and oversized uploads (`LIMIT_FILE_SIZE` -> `413`), and updated `error.pug` to hide the sidebar for guests (`hideSidebar: !req.session?.user`).
 
 ## Deferred pages
 
@@ -170,8 +189,6 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 - `frontend-original/admin/login.html` (dropped; admins use `/login`)
 - `frontend-original/admin/fee.html` (Fees Management)
 - `frontend-original/admin/wallet.html` (Wallet Management)
-- `frontend-original/admin/session.html` (Admin Session Management)
-- `frontend-original/admin/settings.html` (Admin Settings)
 
 ## Known issues
 
@@ -182,5 +199,5 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 
 ## Next
 
-- Review Phase 6.3 swap search & notifications changes on `phase-6.3-swap-search-notifications` (commit and merge to `main` when ready).
-- Begin **Phase 7**: `ml-service` (FastAPI matcher) + `suggestionService.js` with 2s timeout + SQL fallback, wiring real suggestions into `GET /suggestions`.
+- Review Phase 8 admin moderation, signed points adjustment, and error-handling changes on `phase-8-admin-polish` (commit and merge to `main` when ready).
+- Implement **Phase 7** (`ml-service` FastAPI matcher + `suggestionService.js` with 2s timeout + SQL fallback) whenever ready.

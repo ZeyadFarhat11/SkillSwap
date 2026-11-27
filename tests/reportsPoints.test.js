@@ -235,8 +235,8 @@ describe('Phase 6 Reports & Points History', () => {
   });
 
   test('GET /points renders real wallet balance, totals, current-month credits, and history', async () => {
-    // 20 bonus (last month) + 10 earn (this month) - 10 spend (this month) + 5 adjustment (this month) = 25
-    const alice = await seedUser({ name: 'Alice Points', email: 'alicep@test.com', pointsBalance: 25 });
+    // 20 bonus (last month) + 10 earn (this month) - 10 spend (this month) + 5 adj - 3 adj = 22
+    const alice = await seedUser({ name: 'Alice Points', email: 'alicep@test.com', pointsBalance: 22 });
     mockState.skills.push({ id: 1, skillName: 'Python Programming' });
     mockState.skills.push({ id: 2, skillName: 'Guitar' });
     mockState.sessions.push({ id: 10, skillId: 1 });
@@ -277,15 +277,23 @@ describe('Phase 6 Reports & Points History', () => {
         type: POINTS_TYPES.ADJUSTMENT,
         amount: 5,
         createdAt: now,
+      },
+      {
+        id: mockState.nextIds.tx++,
+        userId: alice.id,
+        sessionId: null,
+        type: POINTS_TYPES.ADJUSTMENT,
+        amount: -3,
+        createdAt: now,
       }
     );
 
     const agent = await loginAgent(alice.email);
     const res = await agent.get('/points');
     expect(res.statusCode).toBe(200);
-    expect(res.text).toContain('25'); // current balance
+    expect(res.text).toContain('22'); // current balance
     expect(res.text).toContain('35 points'); // Total Earned = 20 + 10 + 5
-    expect(res.text).toContain('10 points'); // Total Spent = 10
+    expect(res.text).toContain('13 points'); // Total Spent = 10 + 3 (negative adjustment)
     expect(res.text).toContain('15 points'); // This Month Credits = 10 + 5
     expect(res.text).toContain('Welcome starter bonus');
     expect(res.text).toContain('Earned – taught Python Programming');
@@ -293,5 +301,7 @@ describe('Phase 6 Reports & Points History', () => {
     expect(res.text).toContain('Points adjustment');
     expect(res.text).toContain('+10 pts');
     expect(res.text).toContain('-10 pts');
+    expect(res.text).toContain('-3 pts');
+    expect(res.text).not.toContain('--3 pts');
   });
 });

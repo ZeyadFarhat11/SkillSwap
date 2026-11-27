@@ -273,3 +273,16 @@ model Report {
   @@index([reportedUserId])
   @@map("reports")
 }
+
+model PlatformSetting {
+  id                       Int      @id @default(1)
+  platformName             String   @default("SkillSwap") @map("platform_name") @db.VarChar(80)
+  platformEmail            String   @default("support@skillswap.com") @map("platform_email") @db.VarChar(255)
+  platformDescription      String   @default("A community where people exchange skills, share knowledge, and learn together.") @map("platform_description") @db.Text
+  allowRegistrations       Boolean  @default(true) @map("allow_registrations")
+  requireEmailVerification Boolean  @default(false) @map("require_email_verification")
+  maintenanceMode          Boolean  @default(false) @map("maintenance_mode")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  @@map("platform_settings")
+}

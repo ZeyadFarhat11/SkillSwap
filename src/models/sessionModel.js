@@ -45,6 +45,16 @@ async function findByUserId(userId) {
   });
 }
 
+/**
+ * List all sessions across the platform for the admin Session Management view.
+ */
+async function listAllSessionsForAdmin() {
+  return prisma.session.findMany({
+    include: SESSION_INCLUDE,
+    orderBy: { dateTime: 'desc' },
+  });
+}
+
 async function findBySwapRequestId(swapRequestId) {
   return prisma.session.findMany({
     where: { swapRequestId },
@@ -176,6 +186,7 @@ module.exports = {
   createBatch,
   findById,
   findByUserId,
+  listAllSessionsForAdmin,
   findBySwapRequestId,
   findActiveBySwapRequestId,
   updateStatus,

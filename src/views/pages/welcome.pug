@@ -26,15 +26,21 @@ block content
             path(d='M68 62C65 65 56 65 52 62' fill='none' stroke='#00A865' stroke-linecap='round' stroke-width='3')
             polygon(fill='#00A865' points='51,65 45,61 52,57')
 
+      - var wSettings = platformSettings || { platformName: 'SkillSwap', platformDescription: '' }
       h1(class='text-4xl sm:text-5xl font-extrabold tracking-tight mt-1 flex items-center justify-center')
-        span(class='text-[#0a3871]') Skill
-        span(class='text-[#009a60]') Swap
+        if wSettings.platformName.toLowerCase() === 'skillswap'
+          span(class='text-[#0a3871]') Skill
+          span(class='text-[#009a60]') Swap
+        else
+          span(class='text-[#0a3871]')= wSettings.platformName
 
     .text-center.mb-9(data-purpose='tagline')
       p(class='text-base sm:text-lg font-medium text-[#0a3871] leading-relaxed')
         | Share what you know,
         br
         | learn what you want to learn.
+      if wSettings.platformDescription && wSettings.platformDescription !== 'A community where people exchange skills, share knowledge, and learn together.'
+        p(class='text-xs text-slate-500 mt-2 max-w-md mx-auto')= wSettings.platformDescription
 
     .w-full.max-w-xl.flex.flex-col.gap-4.px-2(data-purpose='auth-actions')
       a#btn-signup(

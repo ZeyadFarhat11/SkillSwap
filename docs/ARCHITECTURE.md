@@ -140,9 +140,16 @@ NULL means a one-way request paid with points),
 `type` ENUM(`user`,`message`,`bug`,`other`), `subject`, `description` TEXT,
 `status` ENUM(`open`,`in_review`,`resolved`).
 
+**platform_settings** (singleton `id = 1` for admin settings)
+`platform_name`, `platform_email`, `platform_description` TEXT,
+`allow_registrations` BOOLEAN default `true`,
+`require_email_verification` BOOLEAN default `false`,
+`maintenance_mode` BOOLEAN default `false`.
+
 Additions beyond the ERD (the team should add them to the ERD):
 `users.avatar_path`, `sessions.skill_id`, `reports.reported_user_id`,
-`ratings.reviewee_id`, `swap_requests.offered_skill_id` being nullable.
+`ratings.reviewee_id`, `swap_requests.offered_skill_id` being nullable,
+and `platform_settings`.
 
 ## 6. Business rules
 
@@ -178,7 +185,7 @@ default 10)
   learner (`spend`), add to the instructor (`earn`), update both
   `points_balance` values, and insert both transaction rows.
 - `points_balance` must always equal the sum of that user's transactions.
-- Admin adjustments use type `adjustment`.
+- Admin adjustments use type `adjustment` and may be negative or positive (only `adjustment` amounts may be negative; `points_balance` must never go below 0).
 
 **Reports and moderation**
 - Any user can submit a report. Admins list reports and change their status.
@@ -228,7 +235,7 @@ exact mutual skill matches, so the Suggestions page never breaks.
 | Area | Routes |
 |---|---|
 | Welcome | `GET /`, `GET /welcome` |
-| Auth | `GET/POST /register`, `GET/POST /login`, `POST /logout` |
+| Auth | `GET/POST /register`, `GET/POST /verify-email`, `GET/POST /login`, `POST /logout` |
 | Profile | `GET /profile`, `GET/POST /profile/edit`, `POST /profile/avatar`, `GET /users/:id` |
 | Skills | `GET /skills`, `POST /skills/mine`, `POST /skills/mine/:id/delete` |
 | Availability | `GET /availability`, `POST /availability`, `POST /availability/:id/delete` |
@@ -240,7 +247,7 @@ exact mutual skill matches, so the Suggestions page never breaks.
 | Notifications | `GET /notifications`, `POST /notifications/clear` |
 | Points | `GET /points` |
 | Reports | `GET/POST /reports` |
-| Admin | `GET /admin/reports`, `POST /admin/reports/:id/status`, `GET /admin/skills`, `POST /admin/skills/:id/approve`, `/reject`, `GET /admin/users`, `POST /admin/users/:id/suspend`, `/reactivate` |
+| Admin | `GET /admin/reports`, `POST /admin/reports/:id/status`, `GET/POST /admin/skills`, `POST /admin/skills/:id/approve`, `/reject`, `/delete`, `GET /admin/sessions`, `GET /admin/settings`, `POST /admin/settings/general`, `/preferences`, `GET /admin/users`, `POST /admin/users/:id/suspend`, `/reactivate`, `/points-adjustment` |
 
 HTML forms only use GET and POST, so state changes are POST routes.
 Messages start as plain HTTP (form post + refresh or polling). Move to

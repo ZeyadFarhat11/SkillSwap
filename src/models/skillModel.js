@@ -80,13 +80,81 @@ async function deleteUserSkill(id) {
   return prisma.userSkill.delete({ where: { id } });
 }
 
+/**
+ * List all skills (pending first, then alphabetical) for admin moderation.
+ */
+async function listAllSkillsForAdmin() {
+  return prisma.skill.findMany({
+    orderBy: [{ status: 'asc' }, { skillName: 'asc' }],
+  });
+}
+
+/**
+ * Find a skill by exact unique skillName.
+ */
+async function findSkillByName(skillName) {
+  return prisma.skill.findUnique({ where: { skillName } });
+}
+
+/**
+ * Create a new approved skill created by an admin.
+ */
+async function createApprovedSkill(skillName) {
+  return prisma.skill.create({
+    data: {
+      skillName,
+      status: SKILL_STATUSES.APPROVED,
+    },
+  });
+}
+
+/**
+ * Update a skill's moderation status (approved or rejected).
+ */
+async function updateSkillStatus(skillId, status) {
+  return prisma.skill.update({
+    where: { id: skillId },
+    data: { status },
+  });
+}
+
+/**
+ * Count swap requests and sessions referencing a skill before deletion.
+ */
+async function countSkillReferences(skillId) {
+  const [swapCount, sessionCount] = await Promise.all([
+    typeof prisma.swapRequest?.count === 'function'
+      ? prisma.swapRequest.count({
+          where: { OR: [{ wantedSkillId: skillId }, { offeredSkillId: skillId }] },
+        })
+      : 0,
+    typeof prisma.session?.count === 'function'
+      ? prisma.session.count({ where: { skillId } })
+      : 0,
+  ]);
+  return swapCount + sessionCount;
+}
+
+/**
+ * Delete a skill record by ID (cascades user_skills entries).
+ */
+async function deleteSkillById(skillId) {
+  return prisma.skill.delete({ where: { id: skillId } });
+}
+
 module.exports = {
   listApprovedSkills,
+  listAllSkillsForAdmin,
   findSkillById,
+  findSkillByName,
+  createApprovedSkill,
   listUserSkills,
   findUserSkillsForSkill,
   findUserSkillById,
   findApprovedUserSkill,
   createUserSkill,
+  updateSkillStatus,
+  countSkillReferences,
+  deleteSkillById,
   deleteUserSkill,
 };

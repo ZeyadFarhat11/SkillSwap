@@ -1,0 +1,36 @@
+extends ../layouts/base
+
+block content
+  - var pName = (platformSettings && platformSettings.platformName) ? platformSettings.platformName : 'SkillSwap'
+  main(class='min-h-screen flex items-center justify-center px-4 py-12 bg-[#f8fafc]')
+    div(class='w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center space-y-5')
+      div(class='w-14 h-14 mx-auto rounded-full bg-blue-50 text-[#0052cc] flex items-center justify-center')
+        svg(class='w-7 h-7' fill='none' stroke='currentColor' viewBox='0 0 24 24')
+          path(d='M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' stroke-linecap='round' stroke-linejoin='round' stroke-width='2')
+
+      div
+        h1(class='text-xl font-bold text-slate-900') Verify Your Email
+        p(class='text-sm text-slate-500 mt-1')
+          | #{pName} requires email verification before continuing. Confirm your address for
+          strong(class='text-slate-800 ml-1')= email
+          | .
+
+      div(class='bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600')
+        p(class='font-semibold text-slate-700 mb-1') Verification Code
+        code(class='font-mono text-[#0052cc] select-all')= verificationToken
+
+      form(class='space-y-4 text-left' method='POST' action='/verify-email')
+        input(type='hidden' name='_csrf' value=csrfToken)
+        div
+          label(class='block text-xs font-semibold text-slate-700 mb-1' for='token') Enter Verification Code
+          input#token(
+            class='w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-800 focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]'
+            type='text'
+            name='token'
+            value=verificationToken
+            required
+          )
+        button(
+          class='w-full py-3 px-6 rounded-full bg-[#0052cc] hover:bg-[#0045b0] text-white font-semibold text-sm transition cursor-pointer'
+          type='submit'
+        ) Verify &amp; Continue

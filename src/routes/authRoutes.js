@@ -10,9 +10,13 @@ router.get('/register', authController.showRegister);
 router.post(
   '/register',
   registerLimiter,
+  authController.ensureRegistrationsAllowed,
   validate(registerSchema, authController.REGISTER_VIEW_OPTIONS),
   authController.register
 );
+
+router.get('/verify-email', authController.showVerifyEmail);
+router.post('/verify-email', authController.verifyEmail);
 
 router.get('/login', authController.showLogin);
 router.post(

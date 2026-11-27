@@ -1,0 +1,99 @@
+extends ../layouts/base
+
+block content
+  div(class='flex-1 flex flex-col min-w-0')
+    include ../partials/adminTopbar
+
+    main(class='p-8 space-y-6 max-w-7xl w-full')
+      div
+        h1(class='text-2xl font-bold text-slate-900 tracking-tight') Session Management
+        p(class='text-xs text-slate-400 mt-1 font-normal') Monitor learning sessions, track progress, and inspect scheduled or cancelled bookings.
+
+      section(class='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4' data-purpose='metrics')
+        div(class='bg-white rounded-xl border border-slate-100 p-5 flex flex-col items-center justify-center text-center shadow-sm')
+          span(class='text-[10px] font-semibold tracking-wider text-slate-400 uppercase') Total Sessions
+          span(class='text-3xl font-bold text-slate-900 mt-2 mb-1')= summary.total
+          span(class='text-xs font-medium text-emerald-500') All platform sessions
+        div(class='bg-white rounded-xl border border-slate-100 p-5 flex flex-col items-center justify-center text-center shadow-sm')
+          span(class='text-[10px] font-semibold tracking-wider text-slate-400 uppercase') Completed
+          span(class='text-3xl font-bold text-slate-900 mt-2 mb-1')= summary.completed
+          span(class='text-xs font-medium text-emerald-500') Sessions finished
+        div(class='bg-white rounded-xl border border-slate-100 p-5 flex flex-col items-center justify-center text-center shadow-sm')
+          span(class='text-[10px] font-semibold tracking-wider text-slate-400 uppercase') Upcoming
+          span(class='text-3xl font-bold text-slate-900 mt-2 mb-1')= summary.scheduled
+          span(class='text-xs font-medium text-amber-500') Scheduled sessions
+        div(class='bg-white rounded-xl border border-slate-100 p-5 flex flex-col items-center justify-center text-center shadow-sm')
+          span(class='text-[10px] font-semibold tracking-wider text-slate-400 uppercase') Cancelled
+          span(class='text-3xl font-bold text-slate-900 mt-2 mb-1')= summary.cancelled
+          span(class='text-xs font-medium text-rose-500') Cancelled bookings
+
+      section(class='bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6' data-purpose='table-card')
+        div(class='flex flex-col sm:flex-row sm:items-center justify-between gap-4')
+          div
+            h2(class='text-lg font-bold text-slate-800') All Sessions
+            p(class='text-xs text-slate-400 mt-0.5 font-normal') View session details across learners and teachers.
+
+        form(class='flex flex-wrap items-center gap-3' method='GET' action='/admin/sessions' data-purpose='sessions-search-form')
+          div(class='relative w-72')
+            span(class='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400')
+              svg(class='w-3.5 h-3.5' fill='none' stroke='currentColor' viewBox='0 0 24 24')
+                path(d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' stroke-linecap='round' stroke-linejoin='round' stroke-width='2')
+            input(
+              class='w-full text-xs text-slate-600 border border-slate-200 rounded-lg pl-9 pr-3.5 py-2 placeholder-slate-400 focus:outline-none focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]'
+              name='q'
+              placeholder='Search user or session...'
+              type='text'
+              value=(filters && filters.q ? filters.q : '')
+              data-table-search-target='adminSessionsTable'
+              aria-label='Search sessions'
+            )
+          div(class='relative')
+            select(class='appearance-none text-xs text-slate-600 border border-slate-200 rounded-lg pl-3.5 pr-8 py-2 bg-white focus:outline-none focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc] cursor-pointer' name='status')
+              option(value='' selected=(!filters || !filters.status)) All Status
+              option(value='completed' selected=(filters && filters.status === 'completed')) Completed
+              option(value='scheduled' selected=(filters && filters.status === 'scheduled')) Upcoming
+              option(value='cancelled' selected=(filters && filters.status === 'cancelled')) Cancelled
+          button(class='px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition cursor-pointer' type='submit') Search
+          if filters && (filters.q || filters.status)
+            a(class='text-xs font-semibold text-[#0052cc] hover:underline px-2' href='/admin/sessions') Clear
+
+        div(class='overflow-x-auto custom-scrollbar')
+          table#adminSessionsTable(class='w-full text-left border-collapse')
+            thead
+              tr(class='border-b border-slate-100')
+                th(class='pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider') Session
+                th(class='pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider') Learner
+                th(class='pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider') Teacher
+                th(class='pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider') Date &amp; Time
+                th(class='pb-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center') Status
+            tbody(class='divide-y divide-slate-100 text-xs')
+              if !sessions || !sessions.length
+                tr
+                  td(class='py-6 text-center text-slate-400' colspan='5') No sessions found.
+              else
+                each session in sessions
+                  tr(
+                    class='hover:bg-slate-50/60 transition'
+                    data-search-row='true'
+                    data-search-text=`${session.skillName} ${session.swapType} ${session.learnerName} ${session.instructorName} ${session.dateLabel} ${session.status}`
+                  )
+                    td(class='py-4')
+                      div(class='font-semibold text-slate-800 text-[13px]')= session.skillName
+                      div(class='text-[11px] text-slate-400 mt-0.5')= session.swapType
+                    td(class='py-4 text-slate-600 font-medium')= session.learnerName
+                    td(class='py-4 text-slate-600 font-medium')= session.instructorName
+                    td(class='py-4')
+                      div(class='text-slate-700 font-medium')= session.dateLabel
+                      div(class='text-[11px] text-slate-400 mt-0.5')= session.timeLabel
+                    td(class='py-4 text-center')
+                      if session.status === 'completed'
+                        span(class='inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-[#e6f8ef] text-[#12b76a]') Completed
+                      else if session.status === 'scheduled'
+                        span(class='inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-[#fef5e6] text-[#e59b00]') Upcoming
+                      else
+                        span(class='inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-[#fdeeee] text-[#f04438]') Cancelled
+                tr(class='hidden' data-empty-search-row='true')
+                  td(class='py-6 text-center text-slate-400' colspan='5') No matching sessions found.
+
+block scripts
+  script(src='/js/adminSearch.js')

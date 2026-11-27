@@ -22,16 +22,18 @@ async function getPointsPageData(userId) {
   let thisMonth = 0;
 
   const transactions = rawTxns.map((tx) => {
+    const isAdjustment = tx.type === POINTS_TYPES.ADJUSTMENT;
     const isCredit =
       tx.type === POINTS_TYPES.BONUS ||
       tx.type === POINTS_TYPES.EARN ||
-      tx.type === POINTS_TYPES.ADJUSTMENT;
+      (isAdjustment && tx.amount >= 0);
 
-    if (isCredit) totalEarned += tx.amount;
-    else totalSpent += tx.amount;
+    const absAmount = Math.abs(tx.amount);
+    if (isCredit) totalEarned += absAmount;
+    else totalSpent += absAmount;
 
     if (isCredit && new Date(tx.createdAt) >= startOfMonth) {
-      thisMonth += tx.amount;
+      thisMonth += absAmount;
     }
 
     let label = 'Points adjustment';
@@ -53,7 +55,7 @@ async function getPointsPageData(userId) {
         day: 'numeric',
         year: 'numeric',
       }),
-      amount: tx.amount,
+      amount: absAmount,
       isCredit,
     };
   });

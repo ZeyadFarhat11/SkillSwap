@@ -26,11 +26,19 @@ block content
           path(d='M68 62C65 65 56 65 52 62' fill='none' stroke='#00A865' stroke-linecap='round' stroke-width='3')
           polygon(fill='#00A865' points='51,65 45,61 52,57')
 
+      - var rName = (platformSettings && platformSettings.platformName) ? platformSettings.platformName : 'SkillSwap'
       h1(class='text-[26px] font-extrabold tracking-tight text-[#0052cc] flex items-center justify-center')
-        | Skill
-        span(class='text-[#059669]') Swap
+        if rName.toLowerCase() === 'skillswap'
+          | Skill
+          span(class='text-[#059669]') Swap
+        else
+          span= rName
 
       p.text-sm.font-medium.text-slate-500.mt-2.tracking-normal Learn something. Teach something.
+
+    if registrationsDisabled
+      div(class='w-full mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 text-center')
+        | New user registrations are currently closed by the platform administrator.
 
     form#signupForm.w-full.space-y-4(method='POST' action='/register' data-purpose='registration-form' novalidate)
       input(type='hidden' name='_csrf' value=csrfToken)
@@ -95,8 +103,9 @@ block content
 
       .pt-2(data-purpose='action-container')
         button#submit-button(
-          class='w-full bg-[#0052cc] hover:bg-[#0047b3] active:bg-[#003d99] text-white font-medium py-3.5 px-6 rounded-full shadow-sm transition-colors duration-150 text-base flex justify-center items-center tracking-wide'
+          class=`w-full font-medium py-3.5 px-6 rounded-full shadow-sm transition-colors duration-150 text-base flex justify-center items-center tracking-wide ${registrationsDisabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-[#0052cc] hover:bg-[#0047b3] active:bg-[#003d99] text-white'}`
           type='submit'
+          disabled=Boolean(registrationsDisabled)
         ) Sign Up
 
     .mt-6.text-center(data-purpose='login-link-container')

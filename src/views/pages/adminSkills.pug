@@ -1,48 +1,116 @@
 extends ../layouts/base
 
 block content
-  .flex-1.flex.flex-col.min-w-0
-    header(class='h-20 bg-white/70 backdrop-blur-md border-b border-[#EAEFF5] px-8 flex items-center justify-between sticky top-0 z-10' data-purpose='topbar')
-      h1(class='text-xl font-bold tracking-tight text-[#0F172A]') Skill Management
-      span(class='text-xs font-semibold text-[#0055D6]') Administrator
+  div(class='flex-1 flex flex-col min-w-0')
+    include ../partials/adminTopbar
 
     main(class='flex-1 p-8 space-y-7 max-w-[1500px] w-full mx-auto')
-      section(class='grid grid-cols-1 sm:grid-cols-3 gap-5' data-purpose='metrics-row')
+      div(data-purpose='page-header')
+        h1(class='text-2xl font-bold tracking-tight text-[#0F172A]') Skill Management
+        p(class='text-sm text-[#64748B] mt-1') Review, organize, and manage the skills shared across SkillSwap.
+
+      section(class='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5' data-purpose='metrics-row')
         div(class='bg-white rounded-xl p-5 border border-[#EDF2F7] shadow-sm flex flex-col items-center justify-center text-center')
           span(class='text-[11px] font-bold text-[#8A99AD] tracking-wider uppercase') TOTAL SKILLS
           span(class='text-3xl font-extrabold text-[#0F172A] my-1')= summary.total
+          span(class='text-xs font-semibold text-[#10B981]') Platform catalog
         div(class='bg-white rounded-xl p-5 border border-[#EDF2F7] shadow-sm flex flex-col items-center justify-center text-center')
           span(class='text-[11px] font-bold text-[#8A99AD] tracking-wider uppercase') PENDING REVIEW
           span(class='text-3xl font-extrabold text-[#0F172A] my-1')= summary.pending
+          span(class='text-xs font-medium text-[#F59E0B]') Needs attention
         div(class='bg-white rounded-xl p-5 border border-[#EDF2F7] shadow-sm flex flex-col items-center justify-center text-center')
           span(class='text-[11px] font-bold text-[#8A99AD] tracking-wider uppercase') APPROVED SKILLS
           span(class='text-3xl font-extrabold text-[#0F172A] my-1')= summary.approved
+          span(class='text-xs font-medium text-[#10B981]') Active and visible
+        div(class='bg-white rounded-xl p-5 border border-[#EDF2F7] shadow-sm flex flex-col items-center justify-center text-center')
+          span(class='text-[11px] font-bold text-[#8A99AD] tracking-wider uppercase') REJECTED SKILLS
+          span(class='text-3xl font-extrabold text-[#0F172A] my-1')= summary.rejected
+          span(class='text-xs font-medium text-[#EF4444]') Hidden from catalog
 
       section(class='bg-white rounded-2xl border border-[#EDF2F7] shadow-sm overflow-hidden p-6' data-purpose='skills-table-section')
-        .mb-6
-          h2(class='text-lg font-bold text-[#0F172A]') All Skills
-          p(class='text-xs text-[#64748B] mt-0.5') Review pending skills and approve or reject them.
+        div(class='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6')
+          div
+            h2(class='text-lg font-bold text-[#0F172A]') All Skills
+            p(class='text-xs text-[#64748B] mt-0.5') Add new platform skills, review pending items, or remove skills.
+
+          form(class='flex items-center gap-2' method='POST' action='/admin/skills' data-purpose='add-skill-form')
+            input(type='hidden' name='_csrf' value=csrfToken)
+            input(
+              class='w-52 px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-xs text-[#334155] placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-[#0055D6] focus:border-[#0055D6] transition'
+              type='text'
+              name='skillName'
+              placeholder='New skill name...'
+              aria-label='New skill name'
+              required
+            )
+            button(
+              class='inline-flex items-center gap-1.5 px-4 py-2 bg-[#0055D6] hover:bg-[#0047B3] text-white text-xs font-semibold rounded-lg shadow-sm transition cursor-pointer shrink-0'
+              type='submit'
+            ) + Add Skill
+
+        form(class='flex flex-col sm:flex-row items-center gap-3 mb-6' method='GET' action='/admin/skills' data-purpose='skills-search-form')
+          div(class='relative flex-1 w-full sm:max-w-md')
+            span(class='absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#94A3B8]')
+              svg(class='w-3.5 h-3.5' fill='none' stroke='currentColor' viewBox='0 0 24 24')
+                path(d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' stroke-linecap='round' stroke-linejoin='round' stroke-width='2')
+            input(
+              class='w-full pl-9 pr-4 py-2 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#334155] placeholder-[#94A3B8] focus:outline-none focus:ring-1 focus:ring-[#0055D6] focus:border-[#0055D6] transition'
+              name='q'
+              placeholder='Search skill name...'
+              type='text'
+              value=(filters && filters.q ? filters.q : '')
+              data-table-search-target='adminSkillsTable'
+              aria-label='Search skills'
+            )
+          div(class='w-full sm:w-40')
+            select(class='w-full py-2 pl-3 pr-8 bg-white border border-[#E2E8F0] rounded-lg text-xs text-[#475569] focus:outline-none focus:ring-1 focus:ring-[#0055D6] focus:border-[#0055D6]' name='status')
+              option(value='' selected=(!filters || !filters.status)) All Status
+              option(value='approved' selected=(filters && filters.status === 'approved')) Approved
+              option(value='pending' selected=(filters && filters.status === 'pending')) Pending
+              option(value='rejected' selected=(filters && filters.status === 'rejected')) Rejected
+          button(class='px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition cursor-pointer' type='submit') Search
+          if filters && (filters.q || filters.status)
+            a(class='text-xs font-semibold text-[#0055D6] hover:underline px-2' href='/admin/skills') Clear
 
         .overflow-x-auto
-          table.w-full.text-left.border-collapse
+          table#adminSkillsTable(class='w-full text-left border-collapse')
             thead
               tr(class='bg-[#F8FAFC] border-b border-[#F1F5F9]')
                 th(class='py-3 px-4 text-[11px] font-bold text-[#64748B] tracking-wider uppercase') SKILL NAME
                 th(class='py-3 px-4 text-[11px] font-bold text-[#64748B] tracking-wider uppercase') STATUS
                 th(class='py-3 px-4 text-[11px] font-bold text-[#64748B] tracking-wider uppercase text-right') ACTIONS
             tbody(class='divide-y divide-[#F1F5F9] text-xs')
-              each skill in skills
-                tr(class='hover:bg-[#FBFDFF] transition-colors')
-                  td(class='py-4 px-4 font-bold text-[#0F172A]')= skill.skillName
-                  td(class='py-4 px-4')
-                    span(class='inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E6F8F0] text-[#059669] capitalize')= skill.status
-                  td(class='py-4 px-4 text-right space-x-3')
-                    if skill.status === 'pending'
-                      form.inline(method='POST' action=`/admin/skills/${skill.id}/approve`)
+              if !skills || !skills.length
+                tr
+                  td(class='py-6 px-4 text-center text-slate-400' colspan='3') No skills found.
+              else
+                each skill in skills
+                  tr(
+                    class='hover:bg-[#FBFDFF] transition-colors'
+                    data-search-row='true'
+                    data-search-text=`${skill.skillName} ${skill.status}`
+                  )
+                    td(class='py-4 px-4 font-bold text-[#0F172A]')= skill.skillName
+                    td(class='py-4 px-4')
+                      if skill.status === 'approved'
+                        span(class='inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E6F8F0] text-[#059669] capitalize')= skill.status
+                      else if skill.status === 'pending'
+                        span(class='inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#FEF3C7] text-[#D97706] capitalize')= skill.status
+                      else
+                        span(class='inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-600 capitalize')= skill.status
+                    td(class='py-4 px-4 text-right space-x-3 whitespace-nowrap')
+                      if skill.status === 'pending'
+                        form.inline(method='POST' action=`/admin/skills/${skill.id}/approve`)
+                          input(type='hidden' name='_csrf' value=csrfToken)
+                          button(class='text-[#059669] hover:underline font-bold text-xs cursor-pointer' type='submit') Approve
+                        form.inline(method='POST' action=`/admin/skills/${skill.id}/reject`)
+                          input(type='hidden' name='_csrf' value=csrfToken)
+                          button(class='text-amber-600 hover:underline font-bold text-xs cursor-pointer' type='submit') Reject
+                      form.inline(method='POST' action=`/admin/skills/${skill.id}/delete`)
                         input(type='hidden' name='_csrf' value=csrfToken)
-                        button(class='text-[#059669] hover:underline font-bold text-xs' type='submit') Approve
-                      form.inline(method='POST' action=`/admin/skills/${skill.id}/reject`)
-                        input(type='hidden' name='_csrf' value=csrfToken)
-                        button(class='text-rose-600 hover:underline font-bold text-xs' type='submit') Reject
-                    else
-                      span.text-slate-400 Reviewed
+                        button(class='text-rose-600 hover:underline font-bold text-xs cursor-pointer' type='submit') Remove
+                tr(class='hidden' data-empty-search-row='true')
+                  td(class='py-6 px-4 text-center text-slate-400' colspan='3') No matching skills found.
+
+block scripts
+  script(src='/js/adminSearch.js')

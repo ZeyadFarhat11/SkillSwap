@@ -1,4 +1,5 @@
 const prisma = require('./prisma');
+const AppError = require('../utils/AppError');
 const { POINTS_TYPES, SKILL_STATUSES, USER_ROLES, USER_STATUSES } = require('../config/constants');
 
 /**
@@ -154,13 +155,91 @@ async function findActiveBasicPeers(excludeUserId) {
   });
 }
 
+/**
+ * List all users for the admin management table, newest last (ordered by ID ascending).
+ */
+async function listAllUsersForAdmin() {
+  return prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      avatarPath: true,
+      pointsBalance: true,
+      createdAt: true,
+    },
+    orderBy: { id: 'asc' },
+  });
+}
+
+/**
+ * Update a user's active/suspended status.
+ */
+async function updateUserStatus(userId, status) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { status },
+  });
+}
+
+/**
+ * Adjust a user's points balance atomically in one transaction with a user row lock.
+ * Allows signed integer adjustment amount while guaranteeing balance never drops below 0.
+ */
+async function adjustUserPointsTx(userId, amount) {
+  if (!Number.isInteger(amount) || amount === 0) {
+    throw new AppError('Points adjustment amount must be a non-zero integer.', 400);
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const lockedUsers = await tx.$queryRaw`
+      SELECT id, points_balance FROM users
+      WHERE id = ${userId}
+      FOR UPDATE
+    `;
+    const userRow = lockedUsers[0];
+    if (!userRow) {
+      throw new AppError('User not found.', 404);
+    }
+
+    const currentBalance = Number(userRow.points_balance);
+    const nextBalance = currentBalance + amount;
+    if (nextBalance < 0) {
+      throw new AppError(
+        `Insufficient points balance (${currentBalance}). Balance cannot go below 0.`,
+        400
+      );
+    }
+
+    const updatedUser = await tx.user.update({
+      where: { id: userId },
+      data: { pointsBalance: nextBalance },
+    });
+
+    const transaction = await tx.pointsTransaction.create({
+      data: {
+        userId,
+        type: POINTS_TYPES.ADJUSTMENT,
+        amount,
+      },
+    });
+
+    return { user: updatedUser, transaction };
+  });
+}
+
 module.exports = {
   findByEmail,
   findById,
   findProfileById,
   findActivePeersWithOfferedSkills,
   findActiveBasicPeers,
+  listAllUsersForAdmin,
   updateProfileAndLinks,
   updateAvatarPath,
+  updateUserStatus,
+  adjustUserPointsTx,
   createUserWithStarterPoints,
 };

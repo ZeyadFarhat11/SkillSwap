@@ -18,6 +18,9 @@ jest.mock('../src/models/prisma', () => ({
   userSkill: {
     findMany: jest.fn(async () => []),
   },
+  skill: {
+    findMany: jest.fn(async () => []),
+  },
   swapRequest: {
     findMany: jest.fn(async () => []),
     count: jest.fn(async () => 0),
@@ -164,7 +167,13 @@ describe('Phase 4 Converted Pug pages & route guards', () => {
       email: 'reg@example.com',
       role: 'user',
     });
-    for (const adminPath of ['/admin/users', '/admin/skills', '/admin/reports']) {
+    for (const adminPath of [
+      '/admin/users',
+      '/admin/skills',
+      '/admin/sessions',
+      '/admin/settings',
+      '/admin/reports',
+    ]) {
       const unauth = await request(app).get(adminPath);
       expect(unauth.statusCode).toBe(302);
       expect(unauth.headers.location).toBe('/login');
@@ -185,6 +194,14 @@ describe('Phase 4 Converted Pug pages & route guards', () => {
     const skillsRes = await adminAgent.get('/admin/skills');
     expect(skillsRes.statusCode).toBe(200);
     expect(skillsRes.text).toContain('Skill Management');
+
+    const sessionsRes = await adminAgent.get('/admin/sessions');
+    expect(sessionsRes.statusCode).toBe(200);
+    expect(sessionsRes.text).toContain('Session Management');
+
+    const settingsRes = await adminAgent.get('/admin/settings');
+    expect(settingsRes.statusCode).toBe(200);
+    expect(settingsRes.text).toContain('Platform Preferences');
 
     const reportsRes = await adminAgent.get('/admin/reports');
     expect(reportsRes.statusCode).toBe(200);
