@@ -31,6 +31,8 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        connectSrc: ["'self'", 'ws:', 'wss:'],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:'],
@@ -46,10 +48,13 @@ if (env.NODE_ENV !== 'test') {
 app.use('/uploads', express.static(path.resolve(process.cwd(), env.UPLOAD_DIR)));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+const sessionMiddleware = createSessionMiddleware();
+app.sessionMiddleware = sessionMiddleware;
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser(env.SESSION_SECRET));
-app.use(createSessionMiddleware());
+app.use(sessionMiddleware);
 app.use(flash());
 
 app.use((req, res, next) => {

@@ -73,6 +73,20 @@
     - Updated Prisma mocks in `tests/profile.test.js` and `tests/pages.test.js`, and added `tests/ratings.test.js`, `tests/messages.test.js`, and `tests/reportsPoints.test.js`.
     - Validated all Pug templates compile, `npm run lint` passes (0 errors, 0 warnings), and `npm test` passes (9/9 suites, 41/41 tests).
 
+- **Phase 6.1 (WebSocket live chat & presence)** — implemented and tested:
+  - Dependencies & server setup:
+    - Added `socket.io` (and `socket.io-client` devDependency) in `package.json`.
+    - Shared a single `sessionMiddleware` instance from `src/app.js` (`app.sessionMiddleware`) into `src/server.js` (`http.createServer(app)` + `attachChatSocket`) and enabled `scriptSrc: ["'self'"]` and `connectSrc: ["'self'", 'ws:', 'wss:']` in Helmet CSP.
+  - Real-time chat & presence layer:
+    - Added `src/sockets/presence.js` (per-user active socket tracking `addUserSocket`, `removeUserSocket`, `isUserOnline`, `clearPresence`) and wired live online status into `src/services/messageService.js` (`listConversations`, `getThread`).
+    - Added `src/sockets/chatSocket.js` (`attachChatSocket`, `emitMessageToParticipants`, `createSocketRateLimiter`) enforcing Express session authentication, active-user check, Zod `sendMessageSchema` validation, per-user WebSocket rate limiting (`30` / 15 min), and persistence via `messageService.sendMessage`, plus live broadcast from HTTP `POST /messages` fallback in `src/controllers/messageController.js`.
+  - Client scripts & views:
+    - Added `public/js/chat.js` (plain JS, DOM-safe `textContent` rendering, live `chat:send` / `chat:message` / `presence:update` / `chat:inbox_update` with automatic native POST fallback if socket is disconnected).
+    - Updated `src/views/pages/chat.pug` and `src/views/pages/messages.pug` with live presence indicators, error banner, and `/socket.io/socket.io.js` + `/js/chat.js` scripts; rebuilt `public/css/app.css`.
+  - Tests & checks:
+    - Added `tests/chatSocket.test.js` covering unauthenticated/suspended rejection, bidirectional live delivery & room isolation, presence transitions, validation/active-peer checks, and per-user WebSocket rate limiting.
+    - Verified `npm run lint` (0 errors, 0 warnings), `npm run build:css`, `node --check public/js/chat.js`, Pug compilation, and `npm test` (10/10 suites, 45/45 tests passing).
+
 ## Decisions
 
 Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
@@ -108,6 +122,10 @@ Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
     - Guarded `GET /sessions/:id/review` against non-completed or already-reviewed sessions, showed `Reviewed` badges in `sessions.pug`, and added `Send Message` + `Report User` shortcuts on peer profiles (`profile.pug`).
     - Removed `Skills` and `Availability` links from `src/views/partials/sidebar.pug` since both are accessible directly from `profile.pug`.
     - Added optional `Related User` selection (`?userId=` prefill, active-user check, no self-reporting) and a `Your Submitted Reports` list on `/reports`.
+22. **Phase 6.1 Socket.IO transport & presence (`src/sockets/{chatSocket,presence}.js`, `src/app.js`, `src/server.js`, `public/js/chat.js`)**:
+    - Added `socket.io` (beyond the plain HTTP starting point in `ARCHITECTURE.md` §8, which permits Socket.IO when live chat is desired) while preserving HTTP `POST /messages` as fallback.
+    - Shared `app.sessionMiddleware` with Socket.IO `io.engine.use(...)` so WebSocket auth reuses Express MySQL/MemoryStore sessions without separate tokens, and enforced a sliding-window per-user WebSocket rate limit (`30` messages / 15 min) alongside Express's `messagesLimiter`.
+    - Stored active socket presence in memory (`src/sockets/presence.js`) for single-process deployment.
 
 ## Deferred pages
 
@@ -136,5 +154,5 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 
 ## Next
 
-- Review Phase 6 changes on `phase-6-ratings-messages-reports` (commit and merge to `main` when ready).
+- Review Phase 6.1 WebSocket chat changes on `phase-6.1-websocket-chat` (commit and merge to `main` when ready).
 - Begin **Phase 7**: `ml-service` (FastAPI matcher) + `suggestionService.js` with 2s timeout + SQL fallback, wiring real suggestions into `GET /suggestions`.

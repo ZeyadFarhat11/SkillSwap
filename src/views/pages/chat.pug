@@ -1,22 +1,35 @@
 extends ../layouts/base
 
 block content
-  main(class='flex-1 flex flex-col min-h-screen bg-[#f4f7fb] relative' data-purpose='chat-container')
-    header(class='h-14 bg-[#0d5db8] flex items-center px-4 shrink-0 shadow-sm' data-purpose='chat-header')
-      a(
-        aria-label='Go back'
-        class='text-white hover:text-slate-200 p-1 mr-2 transition-colors'
-        href='/messages'
-      )
-        svg(class='w-5 h-5 stroke-[2.25]' fill='none' stroke='currentColor' viewBox='0 0 24 24')
-          path(d='M10 19l-7-7m0 0l7-7m-7 7h18' stroke-linecap='round' stroke-linejoin='round')
-      .flex.items-center.gap-3
-        div(class='w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs border border-white/40')= peer.name.charAt(0).toUpperCase()
-        h1.text-white.font-semibold.text-base.tracking-wide= peer.name
+  main(
+    class='flex-1 flex flex-col min-h-screen bg-[#f4f7fb] relative'
+    data-purpose='chat-container'
+    data-current-user-id=(currentUser ? currentUser.id : '')
+    data-peer-id=peer.id
+  )
+    header(class='h-14 bg-[#0d5db8] flex items-center justify-between px-4 shrink-0 shadow-sm' data-purpose='chat-header')
+      .flex.items-center
+        a(
+          aria-label='Go back'
+          class='text-white hover:text-slate-200 p-1 mr-2 transition-colors'
+          href='/messages'
+        )
+          svg(class='w-5 h-5 stroke-[2.25]' fill='none' stroke='currentColor' viewBox='0 0 24 24')
+            path(d='M10 19l-7-7m0 0l7-7m-7 7h18' stroke-linecap='round' stroke-linejoin='round')
+        .flex.items-center.gap-3
+          .relative
+            div(class='w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs border border-white/40')= peer.name.charAt(0).toUpperCase()
+            span#peerStatusDot(
+              class=`absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#10B981] border-2 border-[#0d5db8] rounded-full ${peer.online ? '' : 'hidden'}`
+              title='Online'
+            )
+          div
+            h1.text-white.font-semibold.text-base.tracking-wide= peer.name
+            p#peerStatusText(class='text-[11px] text-blue-100 leading-none')= peer.online ? 'Online' : 'Offline'
 
-    .flex-1.overflow-y-auto.px-6.py-6.flex.flex-col.space-y-6(data-purpose='message-history')
+    #messageHistory.flex-1.overflow-y-auto.px-6.py-6.flex.flex-col.space-y-6(data-purpose='message-history')
       if !chatMessages || !chatMessages.length
-        p.text-sm.text-slate-400.text-center.my-auto No messages yet. Say hello below!
+        p#emptyChatState.text-sm.text-slate-400.text-center.my-auto No messages yet. Say hello below!
       else
         each msg in chatMessages
           if msg.isOwn
@@ -27,21 +40,26 @@ block content
               div(class='bg-white text-slate-800 px-5 py-3 rounded-2xl shadow-sm text-sm font-normal max-w-md')= msg.content
 
     footer.p-6.pt-2.shrink-0(data-purpose='chat-input-bar')
-      form.flex.items-center.gap-3(method='POST' action='/messages')
+      p#chatError.hidden.text-xs.font-medium.text-rose-600.mb-2.px-2(role='alert')
+      form#chatForm.flex.items-center.gap-3(method='POST' action='/messages')
         input(type='hidden' name='_csrf' value=csrfToken)
         input(type='hidden' name='receiverId' value=peer.id)
         .relative.flex-1
-          input(
+          input#chatInput(
             class='w-full bg-white border border-slate-200 rounded-full px-5 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 shadow-sm'
             name='content'
             placeholder='Type a message'
             type='text'
             required
           )
-        button(
+        button#chatSendBtn(
           aria-label='Send message'
           class='w-11 h-11 bg-[#0d5db8] hover:bg-[#0b51a1] text-white rounded-full flex items-center justify-center shrink-0 shadow transition-colors'
           type='submit'
         )
           svg(class='w-5 h-5 stroke-[2]' fill='none' stroke='currentColor' viewBox='0 0 24 24')
             path(d='M14 5l7 7m0 0l-7 7m7-7H3' stroke-linecap='round' stroke-linejoin='round')
+
+block scripts
+  script(src='/socket.io/socket.io.js')
+  script(src='/js/chat.js')

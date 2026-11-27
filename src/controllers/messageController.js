@@ -1,4 +1,5 @@
 const messageService = require('../services/messageService');
+const { emitMessageToParticipants } = require('../sockets/chatSocket');
 const AppError = require('../utils/AppError');
 
 /**
@@ -77,7 +78,11 @@ async function sendMessage(req, res, next) {
   try {
     const senderId = req.session.user.id;
     const { receiverId, content } = req.validated.body;
-    await messageService.sendMessage(senderId, { receiverId, content });
+    const saved = await messageService.sendMessage(senderId, { receiverId, content });
+    const io = req.app?.get?.('io');
+    if (io) {
+      emitMessageToParticipants(io, saved, { senderName: req.session.user.name });
+    }
     return res.redirect(`/messages/${receiverId}`);
   } catch (err) {
     return next(err);

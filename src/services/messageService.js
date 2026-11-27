@@ -1,5 +1,6 @@
 const messageModel = require('../models/messageModel');
 const userModel = require('../models/userModel');
+const { isUserOnline } = require('../sockets/presence');
 const AppError = require('../utils/AppError');
 const { USER_STATUSES } = require('../config/constants');
 
@@ -48,7 +49,7 @@ async function listConversations(userId) {
     name: peer.name,
     lastMessage: msg.content,
     timeAgo: formatRelativeTime(msg.sentAt),
-    online: false, // HTTP poll only; no live presence
+    online: isUserOnline(peer.id),
   }));
 }
 
@@ -73,7 +74,10 @@ async function getThread(currentUserId, peerId) {
     content: msg.content,
   }));
 
-  return { peer: { id: peer.id, name: peer.name }, chatMessages };
+  return {
+    peer: { id: peer.id, name: peer.name, online: isUserOnline(peer.id) },
+    chatMessages,
+  };
 }
 
 module.exports = { sendMessage, listConversations, getThread };
