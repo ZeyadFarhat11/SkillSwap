@@ -1,4 +1,5 @@
 const sessionService = require('../services/sessionService');
+const ratingService = require('../services/ratingService');
 const AppError = require('../utils/AppError');
 const { SESSION_STATUSES } = require('../config/constants');
 
@@ -31,6 +32,9 @@ function formatSessionForView(session, currentUserId) {
     weekday: WEEKDAYS[dt.getUTCDay()],
     timeRange: `${hh}:${mm} - ${endHour}:${mm} UTC`,
     status: session.status,
+    hasReviewed:
+      Array.isArray(session.ratings) &&
+      session.ratings.some((r) => r.reviewerId === currentUserId),
   };
 }
 
@@ -151,12 +155,23 @@ async function cancelSession(req, res, next) {
 
 async function reviewForm(req, res, next) {
   try {
-    const session = await sessionService.getSession(
-      req.session.user.id,
-      req.validated.params.id
-    );
+    const userId = req.session.user.id;
+    const session = await sessionService.getSession(userId, req.validated.params.id);
 
-    const isLearner = session.learnerId === req.session.user.id;
+    if (session.status !== SESSION_STATUSES.COMPLETED) {
+      throw new AppError('You can only review completed sessions.', 400);
+    }
+
+    const alreadyReviewed = await ratingService.hasUserReviewedSession(session.id, userId);
+    if (alreadyReviewed) {
+      req.flash('info', 'You have already reviewed this session.');
+      return req.session.save((saveErr) => {
+        if (saveErr) return next(saveErr);
+        return res.redirect('/sessions');
+      });
+    }
+
+    const isLearner = session.learnerId === userId;
     const partner = isLearner ? session.instructor : session.learner;
 
     return res.render('pages/reviewForm', {

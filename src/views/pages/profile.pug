@@ -26,6 +26,10 @@ block content
             a(class='px-5 py-2.5 rounded-full bg-[#0057C2] hover:bg-[#004bb0] text-white text-sm font-semibold shadow-sm transition-colors' href='/profile/edit') Edit Profile
             a(class='px-5 py-2.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors' href='/skills') Manage Skills
             a(class='px-5 py-2.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors' href='/availability') Manage Availability
+        else
+          .flex.flex-wrap.items-center.justify-center.gap-3.mt-5
+            a(class='px-5 py-2.5 rounded-full bg-[#0057C2] hover:bg-[#004bb0] text-white text-sm font-semibold shadow-sm transition-colors' href=`/messages/${profile.id}`) Send Message
+            a(class='px-5 py-2.5 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors' href=`/reports?userId=${profile.id}`) Report User
 
       if isOwnProfile
         section(class='grid grid-cols-1 sm:grid-cols-3 gap-5' data-purpose='stat-metrics')

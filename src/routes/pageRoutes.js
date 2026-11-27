@@ -1,29 +1,17 @@
 const express = require('express');
-const { z } = require('zod');
 const pageController = require('../controllers/pageController');
 const { requireAuth, requireRole } = require('../middlewares/auth');
-const { validate } = require('../middlewares/validate');
 const { USER_ROLES } = require('../config/constants');
 
 const router = express.Router();
-
-const userIdParamSchema = z.object({
-  userId: z.coerce.number().int().positive('Invalid user ID.'),
-});
 
 router.get('/', pageController.home);
 router.get('/welcome', requireAuth, pageController.welcomePoints);
 router.get('/suggestions', requireAuth, pageController.suggestions);
 // GET /requests, /sessions, /sessions/:id/review moved to requestRoutes.js and sessionRoutes.js (Phase 5)
-router.get('/messages', requireAuth, pageController.messages);
-router.get(
-  '/messages/:userId',
-  requireAuth,
-  validate(userIdParamSchema, { source: 'params' }),
-  pageController.chat
-);
-router.get('/points', requireAuth, pageController.points);
-router.get('/reports', requireAuth, pageController.reports);
+// GET /messages, GET /messages/:userId, POST /messages → messageRoutes.js (Phase 6)
+// GET /points                                           → pointsRoutes.js  (Phase 6)
+// GET /reports, POST /reports                           → reportRoutes.js  (Phase 6)
 
 router.get('/admin/users', requireAuth, requireRole(USER_ROLES.ADMIN), pageController.adminUsers);
 router.get('/admin/skills', requireAuth, requireRole(USER_ROLES.ADMIN), pageController.adminSkills);

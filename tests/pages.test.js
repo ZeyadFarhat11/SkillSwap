@@ -29,6 +29,19 @@ jest.mock('../src/models/prisma', () => ({
       return found ? { ...found } : null;
     }),
   },
+  rating: {
+    findFirst: jest.fn(async () => null),
+    findMany: jest.fn(async () => []),
+  },
+  message: {
+    findMany: jest.fn(async () => []),
+  },
+  pointsTransaction: {
+    findMany: jest.fn(async () => []),
+  },
+  report: {
+    findMany: jest.fn(async () => []),
+  },
 }));
 
 const app = require('../src/app');
@@ -95,16 +108,29 @@ describe('Phase 4 Converted Pug pages & route guards', () => {
       name: 'Alice Page',
       email: 'alice2@example.com',
     });
+    const peerPasswordHash = await bcrypt.hash('Password123!', 10);
+    const peer = {
+      id: nextId++,
+      name: 'Salma Mohammed',
+      email: 'salma@example.com',
+      passwordHash: peerPasswordHash,
+      role: 'user',
+      status: 'active',
+      pointsBalance: STARTER_POINTS,
+      avatarPath: null,
+      createdAt: new Date(),
+    };
+    mockUsers.push(peer);
 
     mockSessions.push({
       id: 1,
       swapRequestId: 1,
-      instructorId: user.id + 1,
+      instructorId: peer.id,
       learnerId: user.id,
       skillId: 1,
       dateTime: new Date(),
       status: 'completed',
-      instructor: { id: user.id + 1, name: 'Salma Mohammed' },
+      instructor: { id: peer.id, name: peer.name },
       learner: user,
       skill: { id: 1, skillName: 'Python Programming' },
       ratings: [],
@@ -119,7 +145,7 @@ describe('Phase 4 Converted Pug pages & route guards', () => {
       ['/sessions', 'Your Schedule'],
       ['/sessions/1/review', 'Leave a Review'],
       ['/messages', 'Messages'],
-      ['/messages/2', 'Salma Mohammed'],
+      [`/messages/${peer.id}`, 'Salma Mohammed'],
       ['/points', 'Points Wallet'],
       ['/reports', 'Submit a Report'],
     ];

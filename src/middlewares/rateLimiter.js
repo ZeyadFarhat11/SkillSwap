@@ -34,8 +34,15 @@ const registerLimiter = createRateLimiter({
   message: 'Too many registration attempts. Please try again later.',
 });
 
+const messagesLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  message: 'Too many messages sent. Please wait a few minutes and try again.',
+});
+
 module.exports = {
   createRateLimiter,
   loginLimiter,
   registerLimiter,
+  messagesLimiter,
 };

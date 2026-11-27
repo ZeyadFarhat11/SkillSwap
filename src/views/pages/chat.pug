@@ -15,13 +15,16 @@ block content
         h1.text-white.font-semibold.text-base.tracking-wide= peer.name
 
     .flex-1.overflow-y-auto.px-6.py-6.flex.flex-col.space-y-6(data-purpose='message-history')
-      each msg in chatMessages
-        if msg.isOwn
-          .flex.justify-end
-            div(class='bg-[#0d5db8] text-white px-5 py-3 rounded-2xl shadow-sm text-sm font-normal max-w-md leading-relaxed text-left')= msg.content
-        else
-          .flex.justify-start
-            div(class='bg-white text-slate-800 px-5 py-3 rounded-2xl shadow-sm text-sm font-normal max-w-md')= msg.content
+      if !chatMessages || !chatMessages.length
+        p.text-sm.text-slate-400.text-center.my-auto No messages yet. Say hello below!
+      else
+        each msg in chatMessages
+          if msg.isOwn
+            .flex.justify-end
+              div(class='bg-[#0d5db8] text-white px-5 py-3 rounded-2xl shadow-sm text-sm font-normal max-w-md leading-relaxed text-left')= msg.content
+          else
+            .flex.justify-start
+              div(class='bg-white text-slate-800 px-5 py-3 rounded-2xl shadow-sm text-sm font-normal max-w-md')= msg.content
 
     footer.p-6.pt-2.shrink-0(data-purpose='chat-input-bar')
       form.flex.items-center.gap-3(method='POST' action='/messages')

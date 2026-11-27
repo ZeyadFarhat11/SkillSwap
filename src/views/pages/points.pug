@@ -40,23 +40,27 @@ block content
                 th.pb-3.text-center.font-semibold.text-slate-400 DATE
                 th.pb-3.pr-1.text-right.font-semibold.text-slate-400 POINTS
             tbody.divide-y.divide-slate-50
-              each tx in transactions
+              if !transactions || !transactions.length
                 tr
-                  td(class='py-3.5 pl-1')
-                    .flex.items-center.gap-3
+                  td(class='py-6 text-center text-xs text-slate-400' colspan='3') No points transactions yet.
+              else
+                each tx in transactions
+                  tr
+                    td(class='py-3.5 pl-1')
+                      .flex.items-center.gap-3
+                        if tx.isCredit
+                          span.w-7.h-7.rounded-full.bg-emerald-50.text-emerald-600.flex.items-center.justify-center.font-bold.text-sm.shrink-0 +
+                        else
+                          span.w-7.h-7.rounded-full.bg-rose-50.text-rose-500.flex.items-center.justify-center.font-bold.text-sm.shrink-0 −
+                        div
+                          p.text-xs.font-semibold.text-slate-900= tx.label
+                          p(class='text-[11px] text-slate-400 mt-0.5 capitalize')= tx.type
+                    td(class='py-3.5 text-center text-xs text-slate-500 whitespace-nowrap')= tx.dateLabel
+                    td(class='py-3.5 pr-1 text-right whitespace-nowrap')
                       if tx.isCredit
-                        span.w-7.h-7.rounded-full.bg-emerald-50.text-emerald-600.flex.items-center.justify-center.font-bold.text-sm.shrink-0 +
+                        span.text-xs.font-bold.text-emerald-600= `+${tx.amount} pts`
                       else
-                        span.w-7.h-7.rounded-full.bg-rose-50.text-rose-500.flex.items-center.justify-center.font-bold.text-sm.shrink-0 −
-                      div
-                        p.text-xs.font-semibold.text-slate-900= tx.label
-                        p(class='text-[11px] text-slate-400 mt-0.5 capitalize')= tx.type
-                  td(class='py-3.5 text-center text-xs text-slate-500 whitespace-nowrap')= tx.dateLabel
-                  td(class='py-3.5 pr-1 text-right whitespace-nowrap')
-                    if tx.isCredit
-                      span.text-xs.font-bold.text-emerald-600= `+${tx.amount} pts`
-                    else
-                      span.text-xs.font-bold.text-rose-500= `-${tx.amount} pts`
+                        span.text-xs.font-bold.text-rose-500= `-${tx.amount} pts`
 
         div(class='lg:col-span-5 bg-white rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)]' data-purpose='ways-to-earn')
           h3.text-sm.font-bold.text-slate-900.mb-4 Ways to Earn Points
@@ -65,7 +69,7 @@ block content
               div
                 p.text-xs.font-semibold.text-slate-900 Complete a teaching session
                 p(class='text-[11px] text-slate-400 mt-0.5') Earn points for one-way sessions you teach
-              span.text-xs.font-bold.text-emerald-600.px-2 +10
+              span.text-xs.font-bold.text-emerald-600.px-2= `+${pointsPerSession !== undefined ? pointsPerSession : 10}`
             div(class='bg-[#f8fafc] rounded-xl p-3.5 flex items-center justify-between')
               div
                 p.text-xs.font-semibold.text-slate-900 Starter welcome bonus

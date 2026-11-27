@@ -58,6 +58,21 @@
   - Tests & checks:
     - Added `tests/requests.test.js` and updated `tests/pages.test.js` Prisma mocks for `/requests`, `/sessions`, and `/sessions/:id/review`.
 
+- **Phase 6 (Ratings, messages, reports, and points history)** — implemented and tested:
+  - Models & validators:
+    - Added `src/models/{ratingModel,messageModel,reportModel,pointsModel}.js` and updated `src/models/userModel.js` (`findActiveBasicPeers`).
+    - Added `src/validators/{ratingValidator,messageValidator,reportValidator}.js` (stars 1–5 & trimmed optional comment, trimmed non-empty message content & receiver ID, report type enum, trimmed subject/description & optional `reportedUserId`).
+  - Middlewares, services, controllers, & routes:
+    - Added `messagesLimiter` (`limit: 30` / 15 min per IP, rendering `pages/error` with `429`) in `src/middlewares/rateLimiter.js`.
+    - Added `src/services/{ratingService,messageService,reportService,pointsService}.js` and wired real received reviews + `averageRating` from `ratingService.getReceivedReviews` into `src/services/profileService.js` and `src/controllers/profileController.js`.
+    - Added `src/controllers/{ratingController,messageController,reportController,pointsController}.js`, updated `src/controllers/sessionController.js` (`hasReviewed` state and completed/unreviewed checks on `GET /sessions/:id/review`), and removed Phase 4 placeholders from `src/controllers/pageController.js` and `src/routes/pageRoutes.js`.
+    - Added `src/routes/{ratingRoutes,messageRoutes,reportRoutes,pointsRoutes}.js` (`POST /sessions/:id/rating`, `GET /messages`, `GET /messages/:userId`, `POST /messages` with `messagesLimiter`, `GET/POST /reports`, `GET /points`) and mounted them in `src/app.js`.
+  - Views & styling:
+    - Updated `src/views/pages/{sessions,profile,messages,chat,points,reports}.pug` with review state indicators, profile `Send Message` / `Report User` actions, empty states, dynamic `pointsPerSession`, optional `reportedUserId` selector (`?userId=` prefill), and user submitted reports history, and rebuilt `public/css/app.css`.
+  - Tests & checks:
+    - Updated Prisma mocks in `tests/profile.test.js` and `tests/pages.test.js`, and added `tests/ratings.test.js`, `tests/messages.test.js`, and `tests/reportsPoints.test.js`.
+    - Validated all Pug templates compile, `npm run lint` passes (0 errors, 0 warnings), and `npm test` passes (9/9 suites, 41/41 tests).
+
 ## Decisions
 
 Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
@@ -88,6 +103,11 @@ Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
 18. **Sidebar-only app layout & omitted navbar (`src/views/layouts/base.pug`, `src/views/partials/{sidebar,adminSidebar}.pug`, `src/views/pages/*.pug`)**: Omitted the top `navbar.pug` completely so all authenticated app pages (including Phases 3 and 4 pages) consistently use the left `sidebar` / `adminSidebar` layout (`!hideSidebar && (useSidebar || currentUser)`), while guest/onboarding/standalone views (`welcome`, `welcomePoints`, `login`, `register`, `reviewForm`) pass `hideSidebar: true`. Replaced external `lh3.googleusercontent.com` mock URLs with initials badges (respecting Helmet `imgSrc: ["'self'", 'data:']`), and replaced FontAwesome CDN icons with inline SVGs.
 19. **Starter points welcome screen (`src/views/pages/welcomePoints.pug`)**: `frontend-original/begin/get3points.html` displays `+3 POINTS`; `welcomePoints.pug` renders `STARTER_POINTS` dynamically (`+20` by default, or `+3` if `STARTER_POINTS=3` is configured in `.env`).
 20. **Swap scheduling, duplicate guards, and UTC wall-clock normalization (`src/validators/sessionValidator.js`, `src/services/sessionService.js`, `src/models/sessionModel.js`)**: Normalized naive HTML `<input type="datetime-local">` strings (`YYYY-MM-DDTHH:mm`) as UTC to match Phase 3 `availability.startTime`/`endTime` UTC wall-clock storage, prevented duplicate active session scheduling on an already-scheduled accepted swap request (allowing reschedule only after cancellation), ordered user `FOR UPDATE` row locks by ascending ID to avoid deadlocks, and marked a parent `swap_request` `completed` when it has at least one `completed` session and no remaining `scheduled` sessions.
+21. **Phase 6 UX & security guards (`src/middlewares/rateLimiter.js`, `src/controllers/*`, `src/services/*`, `src/views/pages/*`)**:
+    - Added `messagesLimiter` (`30` requests / 15 min per IP) on `POST /messages`.
+    - Guarded `GET /sessions/:id/review` against non-completed or already-reviewed sessions, showed `Reviewed` badges in `sessions.pug`, and added `Send Message` + `Report User` shortcuts on peer profiles (`profile.pug`).
+    - Removed `Skills` and `Availability` links from `src/views/partials/sidebar.pug` since both are accessible directly from `profile.pug`.
+    - Added optional `Related User` selection (`?userId=` prefill, active-user check, no self-reporting) and a `Your Submitted Reports` list on `/reports`.
 
 ## Deferred pages
 
@@ -112,9 +132,9 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 - **Sandbox restrictions on Windows**: Inside the sandbox, `npm test` fails Supertest loopback binds (`connect EACCES 127.0.0.1:<port>`), `npm run build:css` fails with `EPERM` opening `public/css/app.css`, and `.git/*.lock` file creation fails with `Permission denied`. All succeed when run outside the sandbox.
 - **DB runtime / seed status unverified here**: MySQL container startup, `prisma migrate dev`, and `prisma/seed.js` execution remain unverified (`localhost:3306` unreachable from sandbox). Phase 2–4 tests use in-memory Prisma mocks.
 - **Prisma `package.json#prisma` deprecation warning**: `npx prisma validate` warns that `package.json#prisma` is deprecated and will be removed in Prisma 7.
-- **No standalone `GET /reviews` route**: Sidebars in `frontend-original/` do not link to `/reviews`; received reviews render via `partials/reviews.pug` on `/profile` and `/users/:id` (with empty placeholder arrays until Phase 6).
+- **No standalone `GET /reviews` route**: Sidebars in `frontend-original/` do not link to `/reviews`; received reviews now render with live `ratings` data and computed average rating via `partials/reviews.pug` on `/profile` and `/users/:id`.
 
 ## Next
 
-- Review Phase 5 on `main` (and commit when ready).
-- Begin **Phase 6**: Ratings (`POST /sessions/:id/rating` + received reviews on profiles), Messages (`GET /messages`, `GET /messages/:userId`, `POST /messages` with rate limit), Reports (`POST /reports`), and Points history page (`GET /points`).
+- Review Phase 6 changes on `phase-6-ratings-messages-reports` (commit and merge to `main` when ready).
+- Begin **Phase 7**: `ml-service` (FastAPI matcher) + `suggestionService.js` with 2s timeout + SQL fallback, wiring real suggestions into `GET /suggestions`.

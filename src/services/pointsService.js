@@ -1,0 +1,72 @@
+const userModel = require('../models/userModel');
+const pointsModel = require('../models/pointsModel');
+const { POINTS_TYPES } = require('../config/constants');
+
+/**
+ * Load the points page data for a user:
+ * - Current balance
+ * - Totals (earned, spent, this-month credit)
+ * - Full transaction history, newest first
+ */
+async function getPointsPageData(userId) {
+  const [user, rawTxns] = await Promise.all([
+    userModel.findById(userId),
+    pointsModel.findTransactionsByUserId(userId),
+  ]);
+
+  const now = new Date();
+  const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+
+  let totalEarned = 0;
+  let totalSpent = 0;
+  let thisMonth = 0;
+
+  const transactions = rawTxns.map((tx) => {
+    const isCredit =
+      tx.type === POINTS_TYPES.BONUS ||
+      tx.type === POINTS_TYPES.EARN ||
+      tx.type === POINTS_TYPES.ADJUSTMENT;
+
+    if (isCredit) totalEarned += tx.amount;
+    else totalSpent += tx.amount;
+
+    if (isCredit && new Date(tx.createdAt) >= startOfMonth) {
+      thisMonth += tx.amount;
+    }
+
+    let label = 'Points adjustment';
+    if (tx.type === POINTS_TYPES.BONUS) {
+      label = 'Welcome starter bonus';
+    } else if (tx.type === POINTS_TYPES.EARN) {
+      const skillName = tx.session?.skill?.skillName || 'session';
+      label = `Earned – taught ${skillName}`;
+    } else if (tx.type === POINTS_TYPES.SPEND) {
+      const skillName = tx.session?.skill?.skillName || 'session';
+      label = `Spent – learned ${skillName}`;
+    }
+
+    return {
+      label,
+      type: tx.type,
+      dateLabel: new Date(tx.createdAt).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+      amount: tx.amount,
+      isCredit,
+    };
+  });
+
+  return {
+    wallet: {
+      balance: user ? user.pointsBalance : 0,
+      totalEarned,
+      totalSpent,
+      thisMonth,
+    },
+    transactions,
+  };
+}
+
+module.exports = { getPointsPageData };

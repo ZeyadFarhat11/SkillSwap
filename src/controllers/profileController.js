@@ -13,8 +13,8 @@ async function showOwnProfile(req, res, next) {
       hideFooter: true,
       profile,
       isOwnProfile: true,
-      reviews: [],
-      averageRating: null,
+      reviews: profile.reviews || [],
+      averageRating: profile.averageRating ?? null,
     });
   } catch (err) {
     return next(err);
@@ -34,8 +34,8 @@ async function showUserProfile(req, res, next) {
       hideFooter: true,
       profile,
       isOwnProfile,
-      reviews: [],
-      averageRating: null,
+      reviews: profile.reviews || [],
+      averageRating: profile.averageRating ?? null,
     });
   } catch (err) {
     return next(err);

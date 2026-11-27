@@ -191,6 +191,9 @@ jest.mock('../src/models/prisma', () => ({
       return removed;
     }),
   },
+  rating: {
+    findMany: jest.fn(async () => []),
+  },
   $transaction: jest.fn(async (cb) => cb(mockTx)),
 }));
 

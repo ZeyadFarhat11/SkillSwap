@@ -71,90 +71,8 @@ function suggestions(_req, res) {
 
 // requests(), sessions(), and reviewForm() moved to requestController.js and sessionController.js (Phase 5)
 
-function messages(_req, res) {
-  return res.render('pages/messages', {
-    title: 'Messages',
-    useSidebar: true,
-    hideFooter: true,
-    activeNav: 'messages',
-    bodyClass: 'bg-[#F3F6FA] text-slate-800 min-h-screen antialiased',
-    conversations: [
-      {
-        userId: 2,
-        name: 'Salma Mohammed',
-        lastMessage: 'Sure, see you Saturday at 10:00!',
-        timeAgo: '1h ago',
-        online: true,
-      },
-      {
-        userId: 3,
-        name: 'Mohammed Ahmed',
-        lastMessage: "Great! Let's confirm the session time.",
-        timeAgo: '2h ago',
-        online: false,
-      },
-    ],
-  });
-}
-
-function chat(req, res) {
-  const peerId = req.validated.params.userId;
-  return res.render('pages/chat', {
-    title: 'Chat',
-    useSidebar: true,
-    hideFooter: true,
-    activeNav: 'messages',
-    bodyClass: 'bg-[#f4f7fb] text-slate-800 font-sans antialiased min-h-screen',
-    peer: { id: peerId, name: 'Salma Mohammed' },
-    chatMessages: [
-      { isOwn: false, content: 'Hi! Can we schedule our Python session?' },
-      { isOwn: true, content: 'Sure! Does Saturday at 10:00 work for you?' },
-      { isOwn: false, content: 'Deal! Looking forward to it.' },
-    ],
-  });
-}
-
-function points(_req, res) {
-  return res.render('pages/points', {
-    title: 'Points Wallet',
-    useSidebar: true,
-    hideFooter: true,
-    activeNav: 'points',
-    bodyClass: 'min-h-screen bg-[#f4f7fb] text-slate-800 antialiased',
-    starterPoints: STARTER_POINTS,
-    wallet: {
-      balance: STARTER_POINTS,
-      totalEarned: STARTER_POINTS,
-      totalSpent: 0,
-      thisMonth: STARTER_POINTS,
-    },
-    transactions: [
-      {
-        label: 'Welcome starter bonus',
-        type: 'bonus',
-        dateLabel: 'Nov 26, 2026',
-        amount: STARTER_POINTS,
-        isCredit: true,
-      },
-    ],
-  });
-}
-
-function reports(_req, res) {
-  return res.render('pages/reports', {
-    title: 'Reports',
-    useSidebar: true,
-    hideFooter: true,
-    activeNav: 'reports',
-    bodyClass: 'bg-[#F0F4F8] font-sans antialiased text-slate-800 min-h-screen',
-    reportTypes: [
-      { value: 'user', label: 'User behavior or no-show' },
-      { value: 'message', label: 'Inappropriate message' },
-      { value: 'bug', label: 'Bug or technical issue' },
-      { value: 'other', label: 'Other' },
-    ],
-  });
-}
+// messages(), chat(), points(), and reports() moved to dedicated controllers in Phase 6:
+// messageController.js, pointsController.js, reportController.js
 
 function adminUsers(_req, res) {
   return res.render('pages/adminUsers', {
@@ -223,10 +141,6 @@ module.exports = {
   home,
   welcomePoints,
   suggestions,
-  messages,
-  chat,
-  points,
-  reports,
   adminUsers,
   adminSkills,
   adminReports,

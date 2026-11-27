@@ -1,5 +1,6 @@
 const userModel = require('../models/userModel');
 const storageService = require('./storageService');
+const ratingService = require('./ratingService');
 const AppError = require('../utils/AppError');
 const { SKILL_TYPES, USER_STATUSES } = require('../config/constants');
 const { DAY_NAMES, formatPrismaTime } = require('../utils/time');
@@ -62,6 +63,7 @@ async function getProfile(userId, { includePrivate = false } = {}) {
     offerSkills,
     wantSkills,
     availability,
+    ...(await ratingService.getReceivedReviews(user.id)),
   };
 }
 

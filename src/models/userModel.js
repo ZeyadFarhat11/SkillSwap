@@ -137,11 +137,29 @@ async function createUserWithStarterPoints({ name, email, passwordHash, starterP
   });
 }
 
+/**
+ * List active users (excluding excludeUserId) with basic identity fields.
+ */
+async function findActiveBasicPeers(excludeUserId) {
+  return prisma.user.findMany({
+    where: {
+      id: { not: excludeUserId },
+      status: USER_STATUSES.ACTIVE,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: { name: 'asc' },
+  });
+}
+
 module.exports = {
   findByEmail,
   findById,
   findProfileById,
   findActivePeersWithOfferedSkills,
+  findActiveBasicPeers,
   updateProfileAndLinks,
   updateAvatarPath,
   createUserWithStarterPoints,
