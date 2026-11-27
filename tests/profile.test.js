@@ -10,6 +10,7 @@ const mockState = {
   skills: [],
   userSkills: [],
   availability: [],
+  sessions: [],
   nextIds: { user: 1, link: 1, skill: 1, userSkill: 1, availability: 1 },
   createdUploadFiles: [],
 };
@@ -20,6 +21,7 @@ function resetMockState() {
   mockState.skills.length = 0;
   mockState.userSkills.length = 0;
   mockState.availability.length = 0;
+  mockState.sessions.length = 0;
   mockState.nextIds = { user: 1, link: 1, skill: 1, userSkill: 1, availability: 1 };
 }
 
@@ -193,6 +195,19 @@ jest.mock('../src/models/prisma', () => ({
   },
   rating: {
     findMany: jest.fn(async () => []),
+  },
+  session: {
+    findMany: jest.fn(async ({ where }) =>
+      mockState.sessions.filter((s) =>
+        where?.OR
+          ? where.OR.some(
+              (c) =>
+                (c.instructorId !== undefined && s.instructorId === c.instructorId) ||
+                (c.learnerId !== undefined && s.learnerId === c.learnerId)
+            )
+          : true
+      )
+    ),
   },
   $transaction: jest.fn(async (cb) => cb(mockTx)),
 }));
@@ -647,5 +662,62 @@ describe('Phase 3 Profile, Avatar Upload, Skills, and Availability', () => {
       .send({ _csrf: csrf });
     expect(delRes.statusCode).toBe(302);
     expect(mockState.availability).toHaveLength(1);
+  });
+
+  test('profile renders progress-style Badges Earned, Projects, Certificates, and sticky sidebar', async () => {
+    const alice = await seedUser({ name: 'Alice Progress', email: 'progress@example.com' });
+    const mentor = await seedUser({ name: 'Salma Mentor', email: 'salmap@example.com' });
+    const [python, guitar] = seedSkills();
+
+    mockState.projectLinks.push({
+      id: 1,
+      userId: alice.id,
+      url: 'https://github.com/alice/skill-tracker',
+      createdAt: new Date(),
+    });
+    mockState.sessions.push(
+      {
+        id: 1,
+        instructorId: mentor.id,
+        learnerId: alice.id,
+        skillId: python.id,
+        status: 'completed',
+        dateTime: new Date('2026-10-15T10:00:00.000Z'),
+        createdAt: new Date('2026-10-15T10:00:00.000Z'),
+        instructor: mentor,
+        learner: alice,
+        skill: python,
+      },
+      {
+        id: 2,
+        instructorId: alice.id,
+        learnerId: mentor.id,
+        skillId: guitar.id,
+        status: 'completed',
+        dateTime: new Date('2026-10-18T10:00:00.000Z'),
+        createdAt: new Date('2026-10-18T10:00:00.000Z'),
+        instructor: alice,
+        learner: mentor,
+        skill: guitar,
+      }
+    );
+
+    const agent = await loginAgent(alice.email);
+    const res = await agent.get('/profile');
+    expect(res.statusCode).toBe(200);
+
+    // Sticky fixed sidebar
+    expect(res.text).toContain('sticky top-0 h-screen');
+
+    // Progress-style sections
+    expect(res.text).toContain('BADGES EARNED');
+    expect(res.text).toContain('First Swap');
+    expect(res.text).toContain('Skill Mentor');
+    expect(res.text).toContain('Projects');
+    expect(res.text).toContain('skill-tracker');
+    expect(res.text).toContain('View Project');
+    expect(res.text).toContain('Certificates');
+    expect(res.text).toContain('Python Programming Completion Certificate');
+    expect(res.text).toContain('Mentor: Salma Mentor');
   });
 });

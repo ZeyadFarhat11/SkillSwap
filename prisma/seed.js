@@ -96,11 +96,19 @@ async function main() {
   console.log(`Seeded ${INITIAL_SKILLS.length} approved skills and default admin user.`);
 }
 
-main()
-  .catch((err) => {
-    console.error('Seed failed:', err);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+if (require.main === module) {
+  main()
+    .catch((err) => {
+      console.error('Seed failed:', err);
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
+
+module.exports = {
+  INITIAL_SKILLS,
+  seedSkills,
+  seedAdminUser,
+};

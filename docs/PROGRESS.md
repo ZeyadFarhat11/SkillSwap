@@ -87,6 +87,18 @@
     - Added `tests/chatSocket.test.js` covering unauthenticated/suspended rejection, bidirectional live delivery & room isolation, presence transitions, validation/active-peer checks, and per-user WebSocket rate limiting.
     - Verified `npm run lint` (0 errors, 0 warnings), `npm run build:css`, `node --check public/js/chat.js`, Pug compilation, and `npm test` (10/10 suites, 45/45 tests passing).
 
+- **Phase 6.2 (Profile Badges Earned, Projects, Certificates & Sticky Sidebar)** — implemented and tested:
+  - Profile highlights (`src/services/profileService.js`, `src/views/pages/profile.pug`):
+    - Derived milestone `badges` (`First Swap`, `Skill Mentor`, `Top Rated`, `Balanced Swapper`) and skill completion `certificates` (unique completed learning sessions) from real session, rating, and skill data via `sessionModel.findByUserId` without schema changes.
+    - Formatted project links with `progress.html`-style 2-column project cards (icon badge, parsed title, host pill, full URL, `View Project` link), alongside **Badges Earned** and **Certificates** sections on `/profile` and `/users/:id`.
+  - Fixed viewport sidebar (`src/views/partials/{sidebar,adminSidebar}.pug`):
+    - Updated `<aside>` to `sticky top-0 h-screen overflow-y-auto` so navigation links and `Logout` stay pinned while scrolling pages.
+  - Tests & checks:
+    - Added `session` mock support and Phase 6.2 profile/sidebar assertions in `tests/profile.test.js`.
+    - Verified `npm run lint` (0 errors, 0 warnings), `npm run build:css`, Pug compilation, and `npm test` (10/10 suites, 46/46 tests passing).
+  - Demo database seed (`prisma/seedDemo.js`, `prisma/seed.js`, `package.json`, `tests/seedDemo.test.js`):
+    - Added `npm run prisma:seed:demo` (`prisma/seedDemo.js`) to idempotently seed 5 interacting demo users (`salma`, `omar`, `nour`, `karim`, `maya` at `@skillswap.local`, default password `Password123!`) with project links, offer/want skills, overlapping weekly availability, mutual & one-way swap requests across all statuses, scheduled & completed sessions, matching points transactions preserving `points_balance === sum(transactions)`, mutual ratings, chat messages, and reports.
+
 ## Decisions
 
 Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
@@ -126,6 +138,9 @@ Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
     - Added `socket.io` (beyond the plain HTTP starting point in `ARCHITECTURE.md` §8, which permits Socket.IO when live chat is desired) while preserving HTTP `POST /messages` as fallback.
     - Shared `app.sessionMiddleware` with Socket.IO `io.engine.use(...)` so WebSocket auth reuses Express MySQL/MemoryStore sessions without separate tokens, and enforced a sliding-window per-user WebSocket rate limit (`30` messages / 15 min) alongside Express's `messagesLimiter`.
     - Stored active socket presence in memory (`src/sockets/presence.js`) for single-process deployment.
+23. **Phase 6.2 profile progress sections & sticky sidebar (`src/services/profileService.js`, `src/views/pages/profile.pug`, `src/views/partials/{sidebar,adminSidebar}.pug`)**:
+    - Computed **Badges Earned** and **Certificates** dynamically from `sessions`, `ratings`, and `user_skills` instead of adding new tables to `prisma/schema.prisma`, keeping `frontend-original/progress.html`'s visual sections inside `profile.pug`.
+    - Used `sticky top-0 h-screen overflow-y-auto` on both `sidebar.pug` and `adminSidebar.pug` so navigation stays fixed on scroll without breaking existing `.flex-1` page layouts.
 
 ## Deferred pages
 
@@ -134,7 +149,7 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 - `frontend-original/index.html`, `frontend-original/begin/splash.html` (meta-refresh / timed splash redirect; `GET /` serves `begin/welcome.html` directly for guests)
 - `frontend-original/begin/role.html` (separate role-selection pre-login page; single `/login` route used for all roles)
 - `frontend-original/search/search1.html`, `frontend-original/search/search2.html` (separate search pages; `/suggestions` uses `userdash.html`)
-- `frontend-original/progress.html` (gamified levels, streaks, badges, certificates)
+- `frontend-original/progress.html` (standalone `/progress` route omitted; its **Badges Earned**, **Projects**, and **Certificates** sections are integrated into `/profile` and `/users/:id` in Phase 6.2)
 - `frontend-original/coins/coins.html` (Coins Wallet; `/points` uses `points/points.html`)
 - `frontend-original/notification/notification.html` (Notifications page)
 - `frontend-original/user1..user10/session1..10.html` (10 static copies — Live Video Session call screen)
@@ -154,5 +169,5 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 
 ## Next
 
-- Review Phase 6.1 WebSocket chat changes on `phase-6.1-websocket-chat` (commit and merge to `main` when ready).
+- Review Phase 6.2 profile & sticky sidebar changes on `phase-6.2-profile-progress-sidebar` (commit and merge to `main` when ready).
 - Begin **Phase 7**: `ml-service` (FastAPI matcher) + `suggestionService.js` with 2s timeout + SQL fallback, wiring real suggestions into `GET /suggestions`.

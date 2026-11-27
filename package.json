@@ -11,6 +11,7 @@
     "prisma:validate": "npx prisma validate",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:seed": "node prisma/seed.js",
+    "prisma:seed:demo": "node prisma/seedDemo.js",
     "test": "jest --runInBand",
     "lint": "eslint src prisma tests",
     "format": "prettier --write \"src/**/*.js\" \"prisma/**/*.js\" \"tests/**/*.js\""

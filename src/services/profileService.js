@@ -1,8 +1,9 @@
 const userModel = require('../models/userModel');
+const sessionModel = require('../models/sessionModel');
 const storageService = require('./storageService');
 const ratingService = require('./ratingService');
 const AppError = require('../utils/AppError');
-const { SKILL_TYPES, USER_STATUSES } = require('../config/constants');
+const { SKILL_TYPES, USER_STATUSES, SESSION_STATUSES } = require('../config/constants');
 const { DAY_NAMES, formatPrismaTime } = require('../utils/time');
 
 function normalizeAvatarPath(avatarPath) {
@@ -12,13 +13,112 @@ function normalizeAvatarPath(avatarPath) {
 }
 
 /**
- * Build a safe view-ready user profile object with formatted skills and availability.
+ * Format a stored project URL into a progress-style project card object.
+ */
+function formatProjectCard(link, index) {
+  let host = 'Project';
+  let title = link.url;
+  try {
+    const parsed = new URL(link.url);
+    host = parsed.hostname.replace(/^www\./, '');
+    const segments = parsed.pathname.split('/').filter(Boolean);
+    title = segments.length ? segments[segments.length - 1] : host;
+  } catch {
+    title = link.url;
+  }
+
+  return {
+    id: link.id,
+    url: link.url,
+    host,
+    title,
+    iconText: index % 2 === 0 ? '</>' : host.slice(0, 2).toUpperCase(),
+    accent: index % 2 === 0 ? 'blue' : 'emerald',
+  };
+}
+
+/**
+ * Derive earned/locked milestone badges and skill completion certificates from real activity.
+ */
+function buildProgressHighlights({ userId, completedSessions, reviewsSummary, offerSkills, wantSkills }) {
+  const completedCount = completedSessions.length;
+  const taughtCount = completedSessions.filter((s) => s.instructorId === userId).length;
+  const avgNum = reviewsSummary.averageRating ? Number(reviewsSummary.averageRating) : 0;
+  const hasTopRating = (reviewsSummary.reviews || []).length >= 1 && avgNum >= 4.5;
+
+  const badges = [
+    {
+      key: 'first-swap',
+      title: 'First Swap',
+      description: 'Complete at least 1 session',
+      earned: completedCount >= 1,
+      colorClass: 'bg-amber-500 text-white',
+    },
+    {
+      key: 'skill-mentor',
+      title: 'Skill Mentor',
+      description: 'Teach 1+ completed session',
+      earned: taughtCount >= 1,
+      colorClass: 'bg-[#0056D2] text-white',
+    },
+    {
+      key: 'top-rated',
+      title: 'Top Rated',
+      description: '4.5+ average review rating',
+      earned: hasTopRating,
+      colorClass: 'bg-[#2575FC] text-white',
+    },
+    {
+      key: 'multi-skill',
+      title: 'Balanced Swapper',
+      description: 'Offer & want at least 1 skill',
+      earned: offerSkills.length >= 1 && wantSkills.length >= 1,
+      colorClass: 'bg-emerald-500 text-white',
+    },
+  ];
+
+  // Certificates represent completed learning sessions, deduplicated per skill (newest first)
+  const seenSkills = new Set();
+  const certificates = [];
+  const learnedCompleted = completedSessions.filter((s) => s.learnerId === userId);
+  for (const sess of learnedCompleted) {
+    if (seenSkills.has(sess.skillId)) continue;
+    seenSkills.add(sess.skillId);
+    const skillName = sess.skill?.skillName || 'Skill Exchange';
+    const mentorName = sess.instructor?.name || 'SkillSwap Mentor';
+    const issuedDate = new Date(sess.dateTime || sess.createdAt).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
+    certificates.push({
+      sessionId: sess.id,
+      title: `${skillName} Completion Certificate`,
+      issuer: `Mentor: ${mentorName}`,
+      issuedLabel: `Issued: ${issuedDate}`,
+      accent: certificates.length % 2 === 0 ? 'amber' : 'blue',
+    });
+  }
+
+  return { badges, certificates };
+}
+
+/**
+ * Build a safe view-ready user profile object with formatted skills, availability, badges, projects, and certificates.
  */
 async function getProfile(userId, { includePrivate = false } = {}) {
   const user = await userModel.findProfileById(userId);
   if (!user || (!includePrivate && user.status === USER_STATUSES.SUSPENDED)) {
     throw new AppError('Profile not found.', 404);
   }
+
+  const [reviewsSummary, allSessions] = await Promise.all([
+    ratingService.getReceivedReviews(user.id),
+    sessionModel.findByUserId(user.id),
+  ]);
+
+  const completedSessions = (allSessions || []).filter(
+    (s) => s.status === SESSION_STATUSES.COMPLETED
+  );
 
   const skills = user.userSkills || [];
   const offerSkills = skills
@@ -47,6 +147,15 @@ async function getProfile(userId, { includePrivate = false } = {}) {
     endTime: formatPrismaTime(slot.endTime),
   }));
 
+  const projectLinks = (user.projectLinks || []).map(formatProjectCard);
+  const { badges, certificates } = buildProgressHighlights({
+    userId: user.id,
+    completedSessions,
+    reviewsSummary,
+    offerSkills,
+    wantSkills,
+  });
+
   return {
     id: user.id,
     name: user.name,
@@ -56,14 +165,13 @@ async function getProfile(userId, { includePrivate = false } = {}) {
     avatarPath: normalizeAvatarPath(user.avatarPath),
     status: user.status,
     createdAt: user.createdAt,
-    projectLinks: (user.projectLinks || []).map((link) => ({
-      id: link.id,
-      url: link.url,
-    })),
+    projectLinks,
     offerSkills,
     wantSkills,
     availability,
-    ...(await ratingService.getReceivedReviews(user.id)),
+    badges,
+    certificates,
+    ...reviewsSummary,
   };
 }
 
