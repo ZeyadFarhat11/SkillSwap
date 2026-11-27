@@ -147,6 +147,7 @@ describe('Phase 4 Converted Pug pages & route guards', () => {
       ['/messages', 'Messages'],
       [`/messages/${peer.id}`, 'Salma Mohammed'],
       ['/points', 'Points Wallet'],
+      ['/notifications', 'Notifications'],
       ['/reports', 'Submit a Report'],
     ];
 

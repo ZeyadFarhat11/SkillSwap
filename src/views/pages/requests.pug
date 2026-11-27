@@ -2,16 +2,40 @@ extends ../layouts/base
 
 block content
   main(class='flex-1 px-12 py-8 overflow-y-auto max-w-7xl' data-purpose='swap-feed')
-    header(class='mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4')
+    header(class='mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4')
       div
         h1(class='text-[26px] font-extrabold text-[#0052cc] tracking-tight') Swap With
         p.text-sm.text-slate-500.mt-1 Browse peers offering skills, send a swap request, or respond to incoming requests.
       span(class='inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#EEF2F6] text-xs font-bold text-slate-700')= `Your balance: ${pointsBalance} pts (one-way: ${pointsPerSession} pts)`
 
+    form.mb-8.flex.items-center.gap-3(method='GET' action='/requests' data-purpose='swap-search-form')
+      .relative.flex-1
+        input#swapSearchInput(
+          class='w-full bg-white border border-slate-200 rounded-full px-5 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0052cc]/20 focus:border-[#0052cc] shadow-sm'
+          type='search'
+          name='q'
+          value=(searchQuery || '')
+          placeholder='Search by peer name, bio, or skill (e.g. Python, Guitar)...'
+          aria-label='Search swaps'
+        )
+      button(
+        class='px-6 py-3 rounded-full bg-[#0052cc] hover:bg-[#0043a8] text-white text-sm font-semibold shadow-sm transition-colors cursor-pointer'
+        type='submit'
+      ) Search
+      if searchQuery
+        a(
+          class='px-4 py-3 rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-semibold transition-colors'
+          href='/requests'
+        ) Clear
+
     section.mb-10.space-y-4
       h2.text-lg.font-bold.text-slate-900 Swap Requests
       if !swapRequests.length
-        .bg-white.rounded-2xl.p-6.border.border-slate-100.text-sm.text-slate-500 No swap requests yet. Pick a peer below to request a swap.
+        .bg-white.rounded-2xl.p-6.border.border-slate-100.text-sm.text-slate-500
+          if searchQuery
+            = `No swap requests match "${searchQuery}".`
+          else
+            | No swap requests yet. Pick a peer below to request a swap.
       each reqItem in (swapRequests || [])
         article(class='bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col sm:flex-row sm:items-center justify-between gap-4')
           .space-y-1
@@ -39,7 +63,10 @@ block content
     section.space-y-6
       if !peerOptions.length
         .bg-white.rounded-2xl.p-6.border.border-slate-100.text-sm.text-slate-500
-          | No active peers are offering skills yet.
+          if searchQuery
+            = `No peers offering skills match "${searchQuery}".`
+          else
+            | No active peers are offering skills yet.
       each peer in (peerOptions || [])
         article(class='bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)]' data-purpose='user-card')
           .flex.items-center.justify-between.mb-5

@@ -99,6 +99,18 @@
   - Demo database seed (`prisma/seedDemo.js`, `prisma/seed.js`, `package.json`, `tests/seedDemo.test.js`):
     - Added `npm run prisma:seed:demo` (`prisma/seedDemo.js`) to idempotently seed 5 interacting demo users (`salma`, `omar`, `nour`, `karim`, `maya` at `@skillswap.local`, default password `Password123!`) with project links, offer/want skills, overlapping weekly availability, mutual & one-way swap requests across all statuses, scheduled & completed sessions, matching points transactions preserving `points_balance === sum(transactions)`, mutual ratings, chat messages, and reports.
 
+- **Phase 6.3 (Swap Requests Search Bar & Notifications)** — implemented and tested:
+  - Architecture routes update:
+    - Added `GET /notifications` and `POST /notifications/clear` to [docs/ARCHITECTURE.md](ARCHITECTURE.md) Section 8.
+  - Swap requests search (`src/validators/requestValidator.js`, `src/routes/requestRoutes.js`, `src/services/requestService.js`, `src/controllers/requestController.js`, `src/views/pages/requests.pug`):
+    - Added Zod-validated `GET /requests?q=...` search bar filtering active peer cards (name, bio, offered/wanted skills) and swap requests (partner name, skills, status) with a `Clear` action.
+  - Notifications (`src/models/notificationModel.js`, `src/services/notificationService.js`, `src/controllers/notificationController.js`, `src/routes/notificationRoutes.js`, `src/views/pages/notifications.pug`, `src/views/partials/sidebar.pug`, `src/app.js`):
+    - Converted `frontend-original/notification/notification.html` to `src/views/pages/notifications.pug` and added the **Notifications** link to `sidebar.pug` with an unread red dot (`#notificationDot`) driven by `src/middlewares/notifications.js`, lightweight `hasActivitySince` queries, session `notificationsSeenAt`/`notificationsClearedAt` watermarks, and live Socket.IO updates via `public/js/notifications.js`.
+    - Built a unified newest-first activity feed from `messages`, `swap_requests`, `sessions`, and `ratings`, with session-backed `POST /notifications/clear` (`Clear All`) requiring CSRF.
+  - Tests & checks:
+    - Added `tests/notifications.test.js` (aggregation, clearing, and unseen red-dot lifecycle), extended `tests/requests.test.js` (swap search filtering) and `tests/pages.test.js` (`/notifications`).
+    - Verified `npm run lint` (0 errors, 0 warnings), JS syntax checks, Pug compilation, `npm run build:css`, and `npm test` (12/12 suites, 50/50 tests passing).
+
 ## Decisions
 
 Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
@@ -141,6 +153,8 @@ Decisions made outside [docs/ARCHITECTURE.md](ARCHITECTURE.md):
 23. **Phase 6.2 profile progress sections & sticky sidebar (`src/services/profileService.js`, `src/views/pages/profile.pug`, `src/views/partials/{sidebar,adminSidebar}.pug`)**:
     - Computed **Badges Earned** and **Certificates** dynamically from `sessions`, `ratings`, and `user_skills` instead of adding new tables to `prisma/schema.prisma`, keeping `frontend-original/progress.html`'s visual sections inside `profile.pug`.
     - Used `sticky top-0 h-screen overflow-y-auto` on both `sidebar.pug` and `adminSidebar.pug` so navigation stays fixed on scroll without breaking existing `.flex-1` page layouts.
+24. **Phase 6.3 dynamic notifications & unread badge (`src/models/notificationModel.js`, `src/services/notificationService.js`, `src/middlewares/notifications.js`, `src/controllers/notificationController.js`, `public/js/notifications.js`)**:
+    - Derived notifications dynamically from existing `messages`, `swap_requests`, `sessions`, and `ratings` tables (requiring no DB schema migration), storing separate `notificationsSeenAt` (set on visiting `GET /notifications` to clear the sidebar red dot without erasing the feed) and `notificationsClearedAt` (set on `POST /notifications/clear`) watermarks in the user's Express session, plus live Socket.IO dot activation via `window.__skillswapSocket`.
 
 ## Deferred pages
 
@@ -151,7 +165,6 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 - `frontend-original/search/search1.html`, `frontend-original/search/search2.html` (separate search pages; `/suggestions` uses `userdash.html`)
 - `frontend-original/progress.html` (standalone `/progress` route omitted; its **Badges Earned**, **Projects**, and **Certificates** sections are integrated into `/profile` and `/users/:id` in Phase 6.2)
 - `frontend-original/coins/coins.html` (Coins Wallet; `/points` uses `points/points.html`)
-- `frontend-original/notification/notification.html` (Notifications page)
 - `frontend-original/user1..user10/session1..10.html` (10 static copies — Live Video Session call screen)
 - `frontend-original/user1..user10/summary1..10.html` (10 static copies — AI Session Summary & Quiz)
 - `frontend-original/admin/login.html` (dropped; admins use `/login`)
@@ -169,5 +182,5 @@ Pages in `frontend-original/` skipped by team decision (outside `docs/ARCHITECTU
 
 ## Next
 
-- Review Phase 6.2 profile & sticky sidebar changes on `phase-6.2-profile-progress-sidebar` (commit and merge to `main` when ready).
+- Review Phase 6.3 swap search & notifications changes on `phase-6.3-swap-search-notifications` (commit and merge to `main` when ready).
 - Begin **Phase 7**: `ml-service` (FastAPI matcher) + `suggestionService.js` with 2s timeout + SQL fallback, wiring real suggestions into `GET /suggestions`.

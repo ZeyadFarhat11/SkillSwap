@@ -5,7 +5,7 @@
   const inboxMain = document.querySelector('[data-purpose="chat-history-main"]');
   if (!chatContainer && !inboxMain) return;
 
-  const socket = window.io();
+  const socket = window.__skillswapSocket || (window.__skillswapSocket = window.io());
 
   if (chatContainer) {
     const currentUserId = Number(chatContainer.dataset.currentUserId);

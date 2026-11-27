@@ -13,8 +13,9 @@ async function renderRequestsPage(
 ) {
   try {
     const userId = req.session.user.id;
+    const searchQuery = req.validated?.query?.q || '';
     const { requests, peerOptions, myOfferedSkills, pointsBalance } =
-      await requestService.getRequestsPageData(userId);
+      await requestService.getRequestsPageData(userId, searchQuery);
 
     const swapRequests = requests.map((r) => ({
       id: r.id,
@@ -39,6 +40,7 @@ async function renderRequestsPage(
       myOfferedSkills,
       pointsBalance,
       pointsPerSession: POINTS_PER_SESSION,
+      searchQuery,
       formData,
     };
 

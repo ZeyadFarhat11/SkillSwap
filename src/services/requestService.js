@@ -143,15 +143,17 @@ async function listForUser(userId) {
 }
 
 /**
- * Load all data needed to render the Swap Requests page.
+ * Load all data needed to render the Swap Requests page, optionally filtered by a search query.
  */
-async function getRequestsPageData(userId) {
+async function getRequestsPageData(userId, searchQuery = '') {
   const [requests, peers, mySkills, currentUser] = await Promise.all([
     swapRequestModel.findByUserId(userId),
     userModel.findActivePeersWithOfferedSkills(userId),
     skillModel.listUserSkills(userId),
     userModel.findById(userId),
   ]);
+
+  const q = String(searchQuery || '').trim().toLowerCase();
 
   const myOfferedSkills = mySkills
     .filter((entry) => entry.type === SKILL_TYPES.OFFER)
@@ -161,7 +163,7 @@ async function getRequestsPageData(userId) {
       level: entry.level,
     }));
 
-  const peerOptions = peers.map((peer) => {
+  const allPeerOptions = peers.map((peer) => {
     const approvedEntries = peer.userSkills || [];
     const offeredSkills = approvedEntries
       .filter((entry) => entry.type === SKILL_TYPES.OFFER)
@@ -193,8 +195,32 @@ async function getRequestsPageData(userId) {
     };
   });
 
+  const peerOptions = q
+    ? allPeerOptions.filter(
+        (peer) =>
+          peer.name.toLowerCase().includes(q) ||
+          peer.bio.toLowerCase().includes(q) ||
+          peer.offeredSkills.some((s) => s.skillName.toLowerCase().includes(q)) ||
+          peer.wantedSkills.some((s) => s.skillName.toLowerCase().includes(q))
+      )
+    : allPeerOptions;
+
+  const filteredRequests = q
+    ? requests.filter((r) => {
+        const partnerName = r.senderId === userId ? r.receiver.name : r.sender.name;
+        const wanted = r.wantedSkill?.skillName || '';
+        const offered = r.offeredSkill?.skillName || 'Points (One-way)';
+        return (
+          partnerName.toLowerCase().includes(q) ||
+          wanted.toLowerCase().includes(q) ||
+          offered.toLowerCase().includes(q) ||
+          r.status.toLowerCase().includes(q)
+        );
+      })
+    : requests;
+
   return {
-    requests,
+    requests: filteredRequests,
     peerOptions,
     myOfferedSkills,
     pointsBalance: currentUser ? currentUser.pointsBalance : 0,

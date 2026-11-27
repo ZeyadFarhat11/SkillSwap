@@ -2,11 +2,20 @@ const express = require('express');
 const requestController = require('../controllers/requestController');
 const { requireAuth } = require('../middlewares/auth');
 const { validate } = require('../middlewares/validate');
-const { createRequestSchema, requestIdParamSchema } = require('../validators/requestValidator');
+const {
+  createRequestSchema,
+  requestIdParamSchema,
+  searchRequestQuerySchema,
+} = require('../validators/requestValidator');
 
 const router = express.Router();
 
-router.get('/requests', requireAuth, requestController.listRequests);
+router.get(
+  '/requests',
+  requireAuth,
+  validate(searchRequestQuerySchema, { source: 'query' }),
+  requestController.listRequests
+);
 
 router.post(
   '/requests',

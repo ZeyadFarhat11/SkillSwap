@@ -1067,4 +1067,40 @@ describe('Phase 5 Swap Requests, Sessions, and Transactional Points', () => {
     expect(res.text).not.toContain('Charlie WantOnly');
     expect(res.text).not.toContain('Susp Mentor');
   });
+
+  test('GET /requests?q= filters peer cards and swap requests by peer or skill name', async () => {
+    const alice = await seedUser({ name: 'Alice Searcher', email: 'alices@test.com' });
+    const bob = await seedUser({ name: 'Bob Pythonista', email: 'bobp@test.com' });
+    const carol = await seedUser({ name: 'Carol Guitarist', email: 'carolg@test.com' });
+    const python = seedSkill('Python Programming');
+    const guitar = seedSkill('Guitar');
+
+    seedUserSkill(bob.id, python.id, 'offer');
+    seedUserSkill(carol.id, guitar.id, 'offer');
+
+    const agent = await loginAgent(alice.email);
+    const csrf = await getCsrf(agent, '/requests');
+
+    await agent.post('/requests').type('form').send({
+      _csrf: csrf,
+      receiverId: carol.id,
+      wantedSkillId: guitar.id,
+    });
+
+    const pythonRes = await agent.get('/requests?q=python');
+    expect(pythonRes.statusCode).toBe(200);
+    expect(pythonRes.text).toContain('value="python"');
+    expect(pythonRes.text).toContain('Bob Pythonista');
+    expect(pythonRes.text).not.toContain('Carol Guitarist');
+    expect(pythonRes.text).toContain('No swap requests match');
+
+    const guitarRes = await agent.get('/requests?q=Guitar');
+    expect(guitarRes.statusCode).toBe(200);
+    expect(guitarRes.text).toContain('Carol Guitarist');
+    expect(guitarRes.text).not.toContain('Bob Pythonista');
+
+    const noMatchRes = await agent.get('/requests?q=nonexistent_skill');
+    expect(noMatchRes.statusCode).toBe(200);
+    expect(noMatchRes.text).toContain('No peers offering skills match');
+  });
 });

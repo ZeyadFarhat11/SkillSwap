@@ -237,6 +237,7 @@ exact mutual skill matches, so the Suggestions page never breaks.
 | Sessions | `GET /sessions`, `POST /sessions`, `POST /sessions/:id/complete`, `/cancel` |
 | Ratings | `GET /sessions/:id/review`, `POST /sessions/:id/rating` |
 | Messages | `GET /messages`, `GET /messages/:userId`, `POST /messages` |
+| Notifications | `GET /notifications`, `POST /notifications/clear` |
 | Points | `GET /points` |
 | Reports | `GET/POST /reports` |
 | Admin | `GET /admin/reports`, `POST /admin/reports/:id/status`, `GET /admin/skills`, `POST /admin/skills/:id/approve`, `/reject`, `GET /admin/users`, `POST /admin/users/:id/suspend`, `/reactivate` |

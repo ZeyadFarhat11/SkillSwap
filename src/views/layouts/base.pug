@@ -30,4 +30,7 @@ html(lang='en')
       block footer
         if !hideFooter
           include ../partials/footer
+    if !hideSidebar && currentUser
+      script(src='/socket.io/socket.io.js')
+      script(src='/js/notifications.js')
     block scripts
